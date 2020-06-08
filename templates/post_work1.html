@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <title>リクエスト使用例</title>
+</head>
+<body>
+   <h2>課題１</h2>
+   <ul>
+    {% if name %}
+        <li>ここに入力したお名前を表示：{{name}}</li>
+    {% endif %}
+    {% if gender %}
+        <li>ここに選択した性別を表示：{{gender}}</li>
+    {% endif %}
+    {% if mail %}
+        <li>ここにメールを受け取るかを表示：{{mail}}</li>
+    {% endif %}
+   </ul>
+    
+   <ul>
+    <form method="post">
+        <li>お名前：<input id="my_name" type="text" name="my_name" value=""></li>
+        <li>性別：<input type="radio" name="gender" value="man">男
+        <input type="radio" name="gender" value="woman">女</li>
+        <li><input type="checkbox" name="mail" value="OK">お知らせメールを受け取る</li>        
+        <li><input type="submit" value="送信"></li>
+    </form>
+    </ul>

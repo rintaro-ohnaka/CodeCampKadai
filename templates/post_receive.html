@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>課題２</title>
+</head>
+<body>
+    <h1>この下にメッセージを表示</h1>
+    {% if user_name %}
+        <p>ようこそ{{user_name}}</p>
+    {% endif %}
+    {% if post_error_message %}
+        <p>{{post_error_message}}</p>
+    {% endif %}
+</body>
+</html>

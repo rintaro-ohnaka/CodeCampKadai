@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <title>ジャンケンしようぜ！</title>
+</head>
+<body>
+   <h2>ジャンケンを選択してください</h2>
+    {% if com_choice %}
+        <p>あなたの選択は「{{user_choice}}」です</p>
+    {% endif %}
+    {% if com_choice %}
+        <p>コンピュータの選択は「{{com_choice}}」です</p>
+    {% endif %}
+    {% if judge %}
+        <p>結果は貴様の「{{judge}}」です</p>
+    {% endif %}
+    
+    <form method="post">
+        <input type="radio" name="janken" value="パー" {{'checked' if janken == 'パー'}}>パー
+        <input type="radio" name="janken" value="チョキ" {{'checked' if janken == 'チョキ'}}>チョキ
+        <input type="radio" name="janken" value="グー" {{'checked' if janken == 'グー'}}>グー
+        <input type="submit" value="送信">
+    </form>
+</body>
+</html>

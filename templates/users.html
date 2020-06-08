@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>Hello from Flask</title>
+</head>
+<body>
+<h1>Members</h1>
+<ul>
+{% for name in users %}
+    <li>{{ name }}</li>
+{% endfor %}
+</ul>
+</body>
+</html>
