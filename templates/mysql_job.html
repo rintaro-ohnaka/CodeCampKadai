@@ -8,7 +8,7 @@
            border: solid black 1px;
        }
        table {
-           width: 200px;
+           width: 300px;
        }
    </style>
 </head>
@@ -48,13 +48,13 @@
 
    <table>
        <tr>
-           <th>emp_id</th>
-           <th>emp_name</th>
-           <th>job</th>
-           <th>age</th>
+           <th>社員番号</th>
+           <th>名前</th>
+           <th>役職</th>
+           <th>年齢</th>
        </tr>
 
-       {% for item in goods %}
+       {% for item in emps %}
        <tr>
             <td>{{ item.id }}</td>
             <td>{{ item.name }}</td>

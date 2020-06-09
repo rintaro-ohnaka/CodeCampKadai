@@ -266,16 +266,16 @@ def challenge_mysql_select():
         # query = "SELECT * FROM emp_table " + b
         # query = f"SELECT * FROM emp_table WHERE job = '{order}'"
         cursor.execute(query)
-        goods = []
+        emps = []
         for (id, name, job, age) in cursor:
             item = {"id": id, "name": name, "job":job, "age":age}
-            goods.append(item)
+            emps.append(item)
         params = {
         # "all_check" : order == "",
         # "manager_check" : order == "manager",
         # "analyst_check" : order == "analyst",
         # "clerk_check" : order == "clerk",
-        "goods" : goods
+        "emps" : emps
         }
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
