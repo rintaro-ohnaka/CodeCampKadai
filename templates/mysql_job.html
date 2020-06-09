@@ -14,16 +14,37 @@
 </head>
 <body>
    <h1>職種一覧</h1>
-    <p>職種：<select name="order" form="example">
+    <!-- <p>職種：<select name="order" form="example">
+    <option value="" {% if all_check %} checked {% endif %}>全員</option>
     <option value="manager" {% if manager_check %} checked {% endif %}>マネージャー</option>
     <option value="analyst" {% if analyst_check %} checked {% endif %}>アナリスト</option>
     <option value="clerk" {% if clerk_check %} checked {% endif %}>一般職</option>
-    </select></p>
+    </select></p> -->
     
-    <form method="post">
+    <!-- <form action="" method="">
+        <p>職種：<select name="order" form="example">
+            <option value="">全員</option>
+            <option name="order" value="manager">マネージャー</option>
+            <option value="analyst">アナリスト</option>
+            <option value="clerk">一般職</option>
+            </select></p>
     <!-- <form method="post" action="example.cgi" id="example"> -->
-    <p><input type="submit" value="表示する"></p>
-    </form>
+    <!-- <p><input type="submit" value="表示する"></p>
+    </form> --> 
+
+    <p>
+        選択肢： 
+        <select name="order" form="sampleForm">
+            <option value="manajer">マネージャー</option>
+            <option value="analyst">アナリスト</option>
+            <option value="clerk">一般職</option>
+        </select>
+    </p>
+    <p>
+        <button type="submit" form="sampleForm">送信</button>
+    </p>
+    <form action="" method="" target="_blank" id="sampleForm"></form>
+
    <table>
        <tr>
            <th>emp_id</th>

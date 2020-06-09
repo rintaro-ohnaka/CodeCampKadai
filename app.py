@@ -256,18 +256,25 @@ def challenge_mysql_select():
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
+
+        if order == "":
+            query = "select * from emp_table"
+        else:
+            query = f"select * from emp_table where job = {order}"
+
         
-        query = "select * from emp_table"
+        # query = "SELECT * FROM emp_table " + b
         # query = f"SELECT * FROM emp_table WHERE job = '{order}'"
         cursor.execute(query)
         goods = []
         for (id, name, job, age) in cursor:
-            item = {"emp_id": id, "emp_name": name, "job":job, "age":age}
+            item = {"id": id, "name": name, "job":job, "age":age}
             goods.append(item)
         params = {
-        "manager_check" : order == "manager",
-        "analyst_check" : order == "analyst",
-        "clerk_check" : order == "clerk",
+        # "all_check" : order == "",
+        # "manager_check" : order == "manager",
+        # "analyst_check" : order == "analyst",
+        # "clerk_check" : order == "clerk",
         "goods" : goods
         }
     except mysql.connector.Error as err:
