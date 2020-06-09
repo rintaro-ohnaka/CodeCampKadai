@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <title>サンプル</title>
+   <style type="text/css">
+       table, td, th {
+           border: solid black 1px;
+       }
+       table {
+           width: 200px;
+       }
+   </style>
+</head>
+<body>
+   <h1>職種一覧</h1>
+    <p>職種：<select name="order" form="example">
+    <option value="manager" {% if manager_check %} checked {% endif %}>マネージャー</option>
+    <option value="analyst" {% if analyst_check %} checked {% endif %}>アナリスト</option>
+    <option value="clerk" {% if clerk_check %} checked {% endif %}>一般職</option>
+    </select></p>
+    
+    <form method="post">
+    <!-- <form method="post" action="example.cgi" id="example"> -->
+    <p><input type="submit" value="表示する"></p>
+    </form>
+   <table>
+       <tr>
+           <th>emp_id</th>
+           <th>emp_name</th>
+           <th>job</th>
+           <th>age</th>
+       </tr>
+
+       {% for item in goods %}
+       <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.job }}</td>
+            <td>{{ item.age }}</td>
+       </tr>
+       {% endfor %}
+    </table>
+</body>
+</html>

@@ -239,3 +239,44 @@ def mysql_change():
 
     return "終了"
 
+
+@app.route("/mysql_job")
+def challenge_mysql_select():
+    host = 'localhost' # データベースのホスト名又はIPアドレス
+    username = 'root'  # MySQLのユーザ名
+    passwd   = 'wako19980207'    # MySQLのパスワード
+    dbname   = 'my_database'    # データベース名
+
+
+    order = ""
+    if "order" in request.args.keys() :
+            print(request.args)
+            order = request.args.get("order")
+
+    try:
+        cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+        cursor = cnx.cursor()
+        
+        query = f"SELECT emp_id, emp_name, job, age FROM emp_table WHERE job = '{order}'"
+        cursor.execute(query)
+        goods = []
+        for (id, name, job, age) in cursor:
+            item = {"id": id, "name": name, "job":job, "age":age}
+            goods.append(item)
+        params = {
+        "manager_check" : order == "manager",
+        "analyst_check" : order == "analyst",
+        "clerk_check" : order == "clerk",
+        "goods" : goods
+        }
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("ユーザ名かパスワードに問題があります。")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("データベースが存在しません。")
+        else:
+            print(err)
+    else:
+        cnx.close()
+
+    return render_template("mysql_job.html")
