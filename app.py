@@ -257,11 +257,12 @@ def challenge_mysql_select():
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
         
-        query = f"SELECT emp_id, emp_name, job, age FROM emp_table WHERE job = '{order}'"
+        query = "select * from emp_table"
+        # query = f"SELECT * FROM emp_table WHERE job = '{order}'"
         cursor.execute(query)
         goods = []
         for (id, name, job, age) in cursor:
-            item = {"id": id, "name": name, "job":job, "age":age}
+            item = {"emp_id": id, "emp_name": name, "job":job, "age":age}
             goods.append(item)
         params = {
         "manager_check" : order == "manager",
@@ -279,4 +280,4 @@ def challenge_mysql_select():
     else:
         cnx.close()
 
-    return render_template("mysql_job.html")
+    return render_template("mysql_job.html", **params)
