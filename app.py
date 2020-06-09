@@ -240,6 +240,7 @@ def mysql_change():
     return "終了"
 
 
+# 12章課題1 emp_tableのデータを表示するプログラム
 @app.route("/mysql_job")
 def challenge_mysql_select():
     host = 'localhost' # データベースのホスト名又はIPアドレス
