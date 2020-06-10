@@ -289,3 +289,47 @@ def challenge_mysql_select():
         cnx.close()
 
     return render_template("mysql_job.html", **params)
+
+# 12章の課題2　goods_tableに新しい商品データの追加が行えるプログラム
+@app.route("/mysql_insert")
+def challenge_mysql_insert():
+    host = 'localhost'
+    username = 'root'
+    passwd = 'wako19980207'
+    dbname = 'my_database'
+
+    order = ""
+    price_order = ""
+    if "order" in request.args.keys() :
+            order = request.args.get("order")
+    elif "price_order" in request.args.keys() :
+            price_order = request.args.get("price_order")
+
+    try:
+        cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+        cursor = cnx.cursor()
+
+        if order == "":
+            query = "select goods_name, price from goods_table"
+        else:
+            query = f"insert into goods_table (goods_name, price) values ('{order}', {price_order})"    
+
+        cursor.execute(query)
+        goods = []
+        for (name, price) in cursor:
+            item = {"name": name, "price": price}
+            goods.append(item)
+        params = {
+        "goods" : goods
+        }
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("ユーザ名かパスワードに問題があります。")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("データベースが存在しません。")
+        else:
+            print(err)
+    else:
+        cnx.close()
+
+    return render_template("mysql_insert.html", **params)
