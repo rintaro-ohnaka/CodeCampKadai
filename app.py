@@ -300,28 +300,39 @@ def challenge_mysql_insert():
 
     order = ""
     price_order = ""
-    if "order" in request.args.keys() :
+    # if "order" in request.args.keys() :
+    #         order = request.args.get("order")
+    # elif "price_order" in request.args.keys() :
+    #         price_order = request.args.get("price_order")
+
+    if "order" in request.args.keys() and "price_order" in request.args.keys() :
             order = request.args.get("order")
-    elif "price_order" in request.args.keys() :
             price_order = request.args.get("price_order")
 
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
 
-        if order == "":
+        if order == "" and price_order == "":
             query = "select goods_name, price from goods_table"
         else:
-            query = f"insert into goods_table (goods_name, price) values ('{order}', {price_order})"    
+            query = f"insert into goods_table (goods_name, price) values ('{order}', {price_order}) "    
 
         cursor.execute(query)
+
+        # goods = []
+        # for (name, price) in cursor:
+        #     item = {"name":name, "price":price}
+        #     goods.append(item)
+
         goods = []
         for (name, price) in cursor:
-            item = {"name": name, "price": price}
+            item = {"name":name, "price":price}
             goods.append(item)
         params = {
         "goods" : goods
         }
+
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
             print("ユーザ名かパスワードに問題があります。")
