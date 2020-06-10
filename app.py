@@ -315,10 +315,15 @@ def challenge_mysql_insert():
 
         if order == "" and price_order == "":
             query = "select goods_name, price from goods_table"
+            cursor.execute(query)
         else:
-            query = f"insert into goods_table (goods_name, price) values ('{order}', {price_order}) "    
+            query = f"insert into goods_table (goods_name, price) values ('{order}', {price_order}) " 
+            cursor.execute(query)
+            query2 = "select goods_name, price from goods_table"  
+            cursor.execute(query2)
 
-        cursor.execute(query)
+        # cursor.execute(query)
+        # cursor.execute(query2)
 
         # goods = []
         # for (name, price) in cursor:
