@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <title>サンプル</title>
+   <style type="text/css">
+       table, td, th {
+           border: solid black 1px;
+       }
+       table {
+           width: 500px;
+       }
+   </style>
+</head>
+<body>
+<h1>ひとこと掲示板</h1>
+<p>{{ message }}</p>
+<form action="" method="" id="sampleForm">
+    <p>
+        名前： 
+        <input type="text" name="user_name" placeholder="名前を入力">
+        コメント：
+        <input type="text" name="comment" placeholder="コメントを入力">
+        <button type="submit" form="sampleForm">追加</button>       
+    </p>
+</form>
+
+   <table>
+       <tr>
+           <th>名前</th>
+           <th>コメント</th>
+           <th>時間</th>
+       </tr>
+
+       {% for item in goods %}
+       <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.comment }}</td>
+            <td>{{ item.date }}</td>
+       </tr>
+       {% endfor %}
+    </table>
+</body>
+</html>

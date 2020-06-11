@@ -294,6 +294,104 @@ def challenge_mysql_select():
 
 
 # 12章の課題2　goods_tableに新しい商品データの追加が行えるプログラム
+# @app.route("/mysql_insert")
+# def challenge_mysql_insert():
+#     host = 'localhost'
+#     username = 'root'
+#     passwd = 'wako19980207'
+#     dbname = 'my_database'
+
+#     message = ""
+#     order = ""
+#     price_order = ""
+#     # if "order" in request.args.keys() :
+#     #         order = request.args.get("order")
+#     # elif "price_order" in request.args.keys() :
+#     #         price_order = request.args.get("price_order")
+
+#     if "order" in request.args.keys() and "price_order" in request.args.keys() :
+#             order = request.args.get("order")
+#             price_order = request.args.get("price_order")
+
+#     try:
+#         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+#         cursor = cnx.cursor()
+
+#         # if order == "" and price_order == "":
+#         #     query = "select goods_name, price from goods_table"
+#         #     cursor.execute(query)
+#         # else:
+#         #     query = f"INSERT INTO goods_table (goods_name, price) values ('{order}', '{price_order}') " 
+#         #     cursor.execute(query)
+#         #     cnx.commit()
+
+#         #     # if int == type(price_order):
+#         #     #     message = ['追加成功']
+#         #     # else:
+#         #     #     message = ['追加失敗']
+
+#         #     # ここに追加成功か、追加失敗かの条件分岐を書く？
+#         #     query2 = "select goods_name, price from goods_table"  
+#         #     cursor.execute(query2)
+
+
+
+#         if order == "" and price_order == "":
+#             query = "select goods_name, price from goods_table"
+#             cursor.execute(query)
+#             print("値が入ってないので実行できない")
+#             message = '実行できません'
+
+#         elif order.isdecimal() != True and price_order.isdecimal() == True:
+#             query = f"INSERT INTO goods_table (goods_name, price) values ('{order}', {price_order}) " 
+#             cursor.execute(query)
+#             cnx.commit()
+#             query2 = "select goods_name, price from goods_table"  
+#             cursor.execute(query2)
+#             print("商品が追加できた")
+#             message = '追加成功'
+
+#         else:
+#             query2 = "select goods_name, price from goods_table"
+#             cursor.execute(query2)
+#             print("商品追加に失敗")
+#             message = '追加失敗'
+
+#         # cursor.execute(query)
+#         # cursor.execute(query2)
+
+#         # goods = []
+#         # for (name, price) in cursor:
+#         #     item = {"name":name, "price":price}
+#         #     goods.append(item)
+
+        
+#         goods = []
+#         for (name, price) in cursor:
+#             item = {"name":name, "price":price}
+#             goods.append(item)
+
+#         params = {
+#         "goods" : goods,
+#         "message" : message
+#         # "message" : message
+#         }
+
+#     except mysql.connector.Error as err:
+#         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+#             print("ユーザ名かパスワードに問題があります。")
+#         elif err.errno == errorcode.ER_BAD_DB_ERROR:
+#             print("データベースが存在しません。")
+#         else:
+#             print(err)
+#     else:
+#         cnx.close()
+
+#     return render_template("mysql_insert.html", **params)
+
+
+
+# 12章の課題2　goods_tableに新しい商品データの追加が行えるプログラム
 @app.route("/mysql_insert")
 def challenge_mysql_insert():
     host = 'localhost'
@@ -304,10 +402,7 @@ def challenge_mysql_insert():
     message = ""
     order = ""
     price_order = ""
-    # if "order" in request.args.keys() :
-    #         order = request.args.get("order")
-    # elif "price_order" in request.args.keys() :
-    #         price_order = request.args.get("price_order")
+    
 
     if "order" in request.args.keys() and "price_order" in request.args.keys() :
             order = request.args.get("order")
@@ -317,53 +412,27 @@ def challenge_mysql_insert():
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
 
-        # if order == "" and price_order == "":
-        #     query = "select goods_name, price from goods_table"
-        #     cursor.execute(query)
-        # else:
-        #     query = f"INSERT INTO goods_table (goods_name, price) values ('{order}', '{price_order}') " 
-        #     cursor.execute(query)
-        #     cnx.commit()
-
-        #     # if int == type(price_order):
-        #     #     message = ['追加成功']
-        #     # else:
-        #     #     message = ['追加失敗']
-
-        #     # ここに追加成功か、追加失敗かの条件分岐を書く？
-        #     query2 = "select goods_name, price from goods_table"  
-        #     cursor.execute(query2)
-
-
+        query = "select goods_name, price from goods_table"
 
         if order == "" and price_order == "":
-            query = "select goods_name, price from goods_table"
             cursor.execute(query)
             print("値が入ってないので実行できない")
             message = '実行できません'
 
         elif order.isdecimal() != True and price_order.isdecimal() == True:
-            query = f"INSERT INTO goods_table (goods_name, price) values ('{order}', {price_order}) " 
-            cursor.execute(query)
-            cnx.commit()
-            query2 = "select goods_name, price from goods_table"  
+            query2 = f"INSERT INTO goods_table (goods_name, price) values ('{order}', {price_order}) " 
             cursor.execute(query2)
+            cnx.commit()
+ 
+            cursor.execute(query)
             print("商品が追加できた")
             message = '追加成功'
 
         else:
-            query2 = "select goods_name, price from goods_table"
-            cursor.execute(query2)
+
+            cursor.execute(query)
             print("商品追加に失敗")
             message = '追加失敗'
-
-        # cursor.execute(query)
-        # cursor.execute(query2)
-
-        # goods = []
-        # for (name, price) in cursor:
-        #     item = {"name":name, "price":price}
-        #     goods.append(item)
 
         
         goods = []
@@ -374,7 +443,6 @@ def challenge_mysql_insert():
         params = {
         "goods" : goods,
         "message" : message
-        # "message" : message
         }
 
     except mysql.connector.Error as err:
@@ -388,3 +456,74 @@ def challenge_mysql_insert():
         cnx.close()
 
     return render_template("mysql_insert.html", **params)
+
+
+
+
+
+
+# 13章　実習＿ひとこと掲示板
+@app.route("/mysql_board")
+def challenge_mysql_board():
+    host = 'localhost'
+    username = 'root'
+    passwd = 'wako19980207'
+    dbname = 'my_database'
+
+    message = ""
+    user_name = ""
+    comment = ""
+    
+
+    if "user_name" in request.args.keys() and "comment" in request.args.keys() :
+            user_name = request.args.get("user_name")
+            comment = request.args.get("comment")
+
+    try:
+        cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+        cursor = cnx.cursor()
+
+        query = "select user_name, comment, date from board_table"
+
+        if user_name == "" and comment == "":
+            cursor.execute(query)
+            print("コメントと名前が入っていません")
+            message = 'コメントと名前が入っていません'
+
+        elif len(user_name) <= 20 and len(comment) <= 100: 
+            query2 = f"INSERT INTO board_table (user_name, comment, date) values ('{user_name}', '{comment}', LOCALTIME()) " 
+            cursor.execute(query2)
+            cnx.commit()
+ 
+            cursor.execute(query)
+            print("コメントすることに成功")
+            message = 'コメントすることに成功'
+
+        else:
+
+            cursor.execute(query)
+            print("コメントすることに失敗")
+            message = 'コメントすることに失敗'
+
+        
+        goods = []
+        for (name, comment, date) in cursor:
+            item = {"name":name, "comment":comment, "date":date}
+            goods.append(item)
+
+        params = {
+        "goods" : goods,
+        "message" : message
+        }
+
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("ユーザ名かパスワードに問題があります。")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("データベースが存在しません。")
+        else:
+            print(err)
+    else:
+        cnx.close()
+
+    return render_template("mysql_board.html", **params)
