@@ -290,6 +290,9 @@ def challenge_mysql_select():
 
     return render_template("mysql_job.html", **params)
 
+
+
+
 # 12章の課題2　goods_tableに新しい商品データの追加が行えるプログラム
 @app.route("/mysql_insert")
 def challenge_mysql_insert():
@@ -317,8 +320,11 @@ def challenge_mysql_insert():
             query = "select goods_name, price from goods_table"
             cursor.execute(query)
         else:
-            query = f"insert into goods_table (goods_name, price) values ('{order}', {price_order}) " 
+            query = f"INSERT INTO goods_table (goods_name, price) values ('{order}', '{price_order}') " 
             cursor.execute(query)
+            cnx.commit()
+
+            # ここに追加成功か、追加失敗かの条件分岐を書く？
             query2 = "select goods_name, price from goods_table"  
             cursor.execute(query2)
 
