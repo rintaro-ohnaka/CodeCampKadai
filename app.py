@@ -301,6 +301,7 @@ def challenge_mysql_insert():
     passwd = 'wako19980207'
     dbname = 'my_database'
 
+    message = ""
     order = ""
     price_order = ""
     # if "order" in request.args.keys() :
@@ -316,17 +317,45 @@ def challenge_mysql_insert():
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
 
+        # if order == "" and price_order == "":
+        #     query = "select goods_name, price from goods_table"
+        #     cursor.execute(query)
+        # else:
+        #     query = f"INSERT INTO goods_table (goods_name, price) values ('{order}', '{price_order}') " 
+        #     cursor.execute(query)
+        #     cnx.commit()
+
+        #     # if int == type(price_order):
+        #     #     message = ['追加成功']
+        #     # else:
+        #     #     message = ['追加失敗']
+
+        #     # ここに追加成功か、追加失敗かの条件分岐を書く？
+        #     query2 = "select goods_name, price from goods_table"  
+        #     cursor.execute(query2)
+
+
+
         if order == "" and price_order == "":
             query = "select goods_name, price from goods_table"
             cursor.execute(query)
-        else:
-            query = f"INSERT INTO goods_table (goods_name, price) values ('{order}', '{price_order}') " 
+            print("値が入ってないので実行できない")
+            message = '実行できません'
+
+        elif order.isdecimal() != True and price_order.isdecimal() == True:
+            query = f"INSERT INTO goods_table (goods_name, price) values ('{order}', {price_order}) " 
             cursor.execute(query)
             cnx.commit()
-
-            # ここに追加成功か、追加失敗かの条件分岐を書く？
             query2 = "select goods_name, price from goods_table"  
             cursor.execute(query2)
+            print("商品が追加できた")
+            message = '追加成功'
+
+        else:
+            query2 = "select goods_name, price from goods_table"
+            cursor.execute(query2)
+            print("商品追加に失敗")
+            message = '追加失敗'
 
         # cursor.execute(query)
         # cursor.execute(query2)
@@ -336,12 +365,16 @@ def challenge_mysql_insert():
         #     item = {"name":name, "price":price}
         #     goods.append(item)
 
+        
         goods = []
         for (name, price) in cursor:
             item = {"name":name, "price":price}
             goods.append(item)
+
         params = {
-        "goods" : goods
+        "goods" : goods,
+        "message" : message
+        # "message" : message
         }
 
     except mysql.connector.Error as err:
