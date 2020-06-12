@@ -490,14 +490,22 @@ def challenge_mysql_board():
 
         query = "select user_name, comment, date from board_table"
 
-
         # ここが昇順、降順の条件分岐
-        if sort == 'ASC' or sort == 'DESC':
-            sort_query = 'select user_name, comment, date from board_table order by date ' + sort
-            cursor.execute(sort_query)
+        # if sort == 'ASC' or sort == 'DESC':
+        #     sort_query = 'select user_name, comment, date from board_table order by date ' + sort
+        #     cursor.execute(sort_query)
+        #     print("ifが実行されている")
 
-        else:
-            cursor.execute(query)
+        # else:
+        #     cursor.execute(query)
+        #     print("elseが実行されている")
+
+        if sort == 'ASC' or sort == 'DESC':
+            query = 'select user_name, comment, date from board_table order by date ' + sort
+
+        # else:
+        #     query = 'select user_name, comment, date from board_table'
+
 
 
         # ここが名前とコメントの条件分岐
