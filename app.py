@@ -434,6 +434,7 @@ def challenge_mysql_insert():
             print("商品追加に失敗")
             message = '追加失敗'
 
+
         
         goods = []
         for (name, price) in cursor:
@@ -473,11 +474,15 @@ def challenge_mysql_board():
     message = ""
     user_name = ""
     comment = ""
+    sort = ""
     
 
     if "user_name" in request.args.keys() and "comment" in request.args.keys() :
             user_name = request.args.get("user_name")
             comment = request.args.get("comment")
+
+    if "sort" in request.args.keys():
+        sort = request.args.get("sort")
 
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
@@ -485,6 +490,17 @@ def challenge_mysql_board():
 
         query = "select user_name, comment, date from board_table"
 
+
+        # ここが昇順、降順の条件分岐
+        if sort == 'ASC' or sort == 'DESC':
+            sort_query = 'select user_name, comment, date from board_table order by date ' + sort
+            cursor.execute(sort_query)
+
+        else:
+            cursor.execute(query)
+
+
+        # ここが名前とコメントの条件分岐
         if user_name == "" and comment == "":
             cursor.execute(query)
             print("コメントと名前が入っていません")
@@ -494,7 +510,7 @@ def challenge_mysql_board():
             query2 = f"INSERT INTO board_table (user_name, comment, date) values ('{user_name}', '{comment}', LOCALTIME()) " 
             cursor.execute(query2)
             cnx.commit()
- 
+
             cursor.execute(query)
             print("コメントすることに成功")
             message = 'コメントすることに成功'
@@ -503,9 +519,38 @@ def challenge_mysql_board():
 
             cursor.execute(query)
             print("コメントすることに失敗")
-            message = 'コメントすることに失敗'
+            message = 'コメントすることに失敗'  
+
+
+
+
+        # 名前とコメントには必ず文字が入力されるらしい、つまり数字は弾くということ？
+        # そんな掲示板あるか？笑
+        # if user_name == "" and comment == "":
+        #     cursor.execute(query)
+        #     print("コメントと名前が入っていません")
+        #     message = 'コメントと名前が入っていません'
+
+        # elif len(user_name) <= 20 and len(comment) <= 100: 
+        #     query2 = f"INSERT INTO board_table (user_name, comment, date) values ('{user_name}', '{comment}', LOCALTIME()) " 
+        #     cursor.execute(query2)
+        #     cnx.commit()
+ 
+        #     cursor.execute(query)
+        #     print("コメントすることに成功")
+        #     message = 'コメントすることに成功'
+
+        # else:
+
+        #     cursor.execute(query)
+        #     print("コメントすることに失敗")
+        #     message = 'コメントすることに失敗'
+
+        # sort_query = 'select user_name, comment, date from board_table order by date ' + sort
+        # cursor.execute(sort_query)
 
         
+        # ここの配列は変えて良いと思う、goodsはおかしいでしょw
         goods = []
         for (name, comment, date) in cursor:
             item = {"name":name, "comment":comment, "date":date}
@@ -513,7 +558,9 @@ def challenge_mysql_board():
 
         params = {
         "goods" : goods,
-        "message" : message
+        "message" : message,
+        "asc_check" : sort == "ASC",
+        "desc_check" : sort == "DESC"
         }
 
     except mysql.connector.Error as err:
