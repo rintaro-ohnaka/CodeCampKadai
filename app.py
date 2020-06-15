@@ -514,7 +514,7 @@ def challenge_mysql_board():
             print("コメントと名前が入っていません")
             message = 'コメントと名前が入っていません'
 
-        elif len(user_name) <= 20 and len(comment) <= 100: 
+        elif 1 <= len(user_name) <= 20 and 1 <= len(comment) <= 100: 
             query2 = f"INSERT INTO board_table (user_name, comment, date) values ('{user_name}', '{comment}', LOCALTIME()) " 
             cursor.execute(query2)
             cnx.commit()
@@ -582,3 +582,48 @@ def challenge_mysql_board():
         cnx.close()
 
     return render_template("mysql_board.html", **params)
+
+
+
+# 14章 正規表現
+import re
+@app.route("/regrep", methods=['GET', 'POST'])
+def regrep():
+    message = ""
+    phone_number = ""
+    if "phone_number" in request.form.keys():
+        phone_number = request.form["phone_number"]
+
+        if len(phone_number)==0 :
+            message = '携帯電話番号を入力してください。'
+        elif re.match('^[0-9]{3}-[0-9]{4}-[0-9]{4}$', phone_number):
+            message = 'あなたの携帯電話番号は「' + phone_number + '」です'
+        else:
+            message = '形式が違います。xxx-xxxx-xxxxの形式の数値で入力してください'
+
+    return render_template('regrep.html', phone_number=phone_number, message=message)
+
+
+# 14章  正規表現　課題1
+@app.route("/regex_signup", methods=['GET', 'POST'])
+def regex_signup():
+
+    mail = ""
+    password = ""
+    message = ""
+    
+    if "mail" in request.form.keys() and "password" in request.form.keys():
+        mail = request.form["mail"]
+        password = request.form["password"]
+
+    if len(mail)==0 and len(password)==0:
+        message = 'メールアドレスとパスワードを入力してください。'
+
+    elif re.search('[a-z0-9]@[a-z]', mail) and re.fullmatch('^[a-zA-Z0-9]{6,18}$', password):
+        message = '登録完了'
+    
+    else:
+        message = 'メールアドレスの形式が正しくありません、パスワードは半角英数記号６文字以上18文字以下で入力してください'
+
+    return render_template('regex_signup.html', mail=mail, password=password, message=message)
+    
