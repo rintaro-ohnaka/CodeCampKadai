@@ -1,10 +1,11 @@
 --13章
 
 CREATE TABLE board_table(
-    board_id INT, AUTO_INCREMENT,
+    board_id INT AUTO_INCREMENT,
     user_name VARCHAR(100),
     comment VARCHAR(1000),
-    date VARCHAR(100)
+    date VARCHAR(100),
+    PRIMARY KEY (board_id)
     );
 
 
@@ -99,3 +100,23 @@ JOIN goods_table
 ON order_detail_table.goods_id = goods_table.goods_id
 GROUP BY customer_name
 
+
+-- 18章　自動販売機　ドリンク情報
+CREATE TABLE drink_table(
+    drink_id INT AUTO_INCREMENT,
+    drink_name VARCHAR(255),
+    price INT,
+    create_day DATETIME,
+    update_day DATETIME,
+    publication_status INT,
+    PRIMARY KEY (drink_id)
+)
+
+-- 在庫数管理
+CREATE TABLE stock_table(
+    drink_id INT AUTO_INCREMENT,
+    stock INT,
+    create_day DATETIME,
+    update_day DATETIME,
+    PRIMARY KEY (drink_id)
+)

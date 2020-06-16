@@ -627,3 +627,104 @@ def regex_signup():
 
     return render_template('regex_signup.html', mail=mail, password=password, message=message)
     
+
+
+# トランザクション　サンプル
+
+import datetime
+@app.route("/transaction", methods=["GET", "POST"])
+def transaction():
+    host = 'localhost' # データベースのホスト名又はIPアドレス
+    username = 'root'  # MySQLのユーザ名
+    passwd   = 'wako19980207'    # MySQLのパスワード
+    dbname   = 'my_database'    # データベース名
+    customer_id = 1        # 例題のため顧客は1に固定
+    payment = 'クレジット'   # 例題のため購入方法はクレジットに固定する
+    quantity = 1           # 例題のため数量は1に固定
+    goods = []
+    cnx = None
+    try:
+        cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+        cursor = cnx.cursor()
+        order = ""
+        goods_id = ""
+        if "goods_id" in request.form.keys() :
+            goods_id = request.form["goods_id"]
+        
+            try:
+                date = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                sql = "INSERT INTO order_table (customer_id, order_date, payment) VALUES({}, '{}', '{}')".format(customer_id, date, payment)
+                cursor.execute(sql)
+                order_id = cursor.lastrowid # insertした値を取得できます。
+
+                sql = "INSERT INTO order_detail_table (order_id, goods_id, quantity) VALUES({}, {}, {})".format(order_id, goods_id, quantity)
+                cursor.execute(sql)
+
+                cnx.commit()
+
+            except mysql.connector.Error:
+                cnx.rollback()
+                raise
+
+        sql = 'SELECT goods_id, goods_name, price FROM goods_table'
+        cursor.execute(sql)
+
+        for (goods_id, goods_name, price) in cursor:
+            item = {"id": goods_id, "name": goods_name, "price":price}
+            goods.append(item)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("ユーザ名かパスワードに問題があります。")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("データベースが存在しません。")
+        else:
+            print(err)
+    finally:
+        if cnx != None:
+            cnx.close()
+
+    return render_template("transaction.html", goods=goods)
+
+
+
+# 18章　自動販売機
+
+@app.route("/vending_machine_admin")
+def vending_machine():
+    host = 'localhost' # データベースのホスト名又はIPアドレス
+    username = 'root'  # MySQLのユーザ名
+    passwd   = 'wako19980207'    # MySQLのパスワード
+    dbname   = 'my_database'    # データベース名
+
+    "drink_name" in request.args.keys() and "price" in request.args.keys() and "stock" in request.args.keys()
+    drink_name = request.args.get("drink_name")
+    price = request.args.get("price")
+    stock = request.args.get("stock")
+
+    try:
+        cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+        cursor = cnx.cursor()
+
+        # SQL文をここに書く
+        query = "select user_name, comment, date from board_table"
+        product_information = "SELECT drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+
+        if drink_name == "" and price == "" and stock == "":
+            
+            cursor.execute(product_information)
+        
+        else:
+
+            cursor.execute(product_information)
+
+        products = []
+        for (name, price, stock, publication_status) in cursor:
+            item = {"name":name, "price":price, "stock":stock, "publication_status":publication_status}
+            products.append(item)
+
+
+        params = {
+        "products" : products
+        }
+
+    render_template("vending_machine_admin.html", **params)

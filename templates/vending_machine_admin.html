@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <title>正規表現</title>
+</head>
+<body>
+<form method="post">
+   <label for="name">名前：</label>
+   <input id="name" type="text" name="name" value="{{name}}">
+
+   <label for="price">値段：</label>
+   <input id="price" type="text" name="price" value="{{price}}">
+
+   <label for="item">個数：</label>
+   <input id="item" type="text" name="item" value="{{item}}">
+
+   <input type="submit" value="商品追加">
+</form>
+
+<table>
+    <p>商品情報変更</p>
+    <tr>
+        <th>商品画像</th>
+        <th>商品名</th>
+        <th>価格</th>
+        <th>在庫数</th>
+        <th>ステータス</th>
+    </tr>
+
+    {% for item in goods %}
+    <tr>
+         <td>{{ item.name }}</td>
+         <td>{{ item.price }}</td>
+         <td>{{ item.stock }}</td>
+         <td>{{ item.publication_status }}</td>
+    </tr>
+    {% endfor %}
+ </table>
+
+</body>
+</html>
