@@ -62,3 +62,40 @@ ON order_table.order_id = order_detail_table.order_id
 JOIN goods_table
 ON order_detail_table.goods_id = goods_table.goods_id
 ORDER BY quantity DESC;
+
+-- 16章 課題　顧客ごとの発注回数を取得し、名前と合わせて表示
+SELECT order_table.order_id, order_table.order_date, customer_table.customer_name, customer_table.address, customer_table.phone_number, order_table.payment, goods_table.goods_name, goods_table.price, order_detail_table.quantity
+FROM customer_table
+JOIN order_table
+ON customer_table.customer_id = order_table.customer_id
+JOIN order_detail_table
+ON order_table.order_id = order_detail_table.order_id
+JOIN goods_table
+ON order_detail_table.goods_id = goods_table.goods_id;
+
+SELECT customer_name, COUNT(order_table.customer_id) AS '発注回数'
+FROM customer_table
+JOIN order_table
+ON customer_table.customer_id = order_table.customer_id
+GROUP BY customer_name
+
+
+-- 値段が100円の商品に関して、商品毎の売り上げ数量を取得し、商品名と合わせて表示
+SELECT goods_name, SUM(quantity) AS '売上数量'
+FROM order_detail_table
+JOIN goods_table
+ON order_detail_table.goods_id = goods_table.goods_id
+WHERE goods_table.price = 100
+GROUP BY goods_name
+
+-- 顧客毎の発注した全商品の合計金額を取得し、名前と合わせて表示
+SELECT customer_table.customer_name, SUM(goods_table.price)
+FROM customer_table
+JOIN order_table
+ON customer_table.customer_id = order_table.customer_id
+JOIN order_detail_table
+ON order_table.order_id = order_detail_table.order_id
+JOIN goods_table
+ON order_detail_table.goods_id = goods_table.goods_id
+GROUP BY customer_name
+
