@@ -700,26 +700,41 @@ def vending_machine():
     drink_name = ""
     price = ""
     stock = ""
+    stock_id = "2"
+    item = ""
+    drink_id = ""
 
     if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys():
         drink_name = request.form["drink_name"]
         price = request.form["price"]
         stock = request.form["stock"]
 
+    if "item" in request.form.keys() and "drink_id" in request.form.keys():
+        item = request.form["item"]
+        drink_id = request.form["drink_id"]
+
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
 
-        product_information = "SELECT drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+        product_information = "SELECT drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
         add_product = f"INSERT INTO drink_table (drink_name, price, create_day) VALUES ('{drink_name}', '{price}', LOCALTIME())"
         add_product_stock = f"INSERT INTO stock_table(stock, create_day) VALUES ('{stock}', LOCALTIME())"
-        stock_update = "UPDATE stock_table SET stock = {} WHERE drink_id = {}"
+        stock_update = f"UPDATE stock_table SET stock = '{item}' WHERE drink_id = '{drink_id}' "
+
+
+        if re.search('[0-9]', item):
+            
+            cursor.execute(stock_update)
+            cnx.commit()
+            # cursor.execute(product_information)
+            print('在庫変更ができているよ')
 
         if drink_name == "" and price == "" and stock == "":
             
             cursor.execute(product_information)
             print('まだDBに変更を反映することができていないよ')
-        
+
         else:
 
             cursor.execute(add_product)
@@ -730,8 +745,8 @@ def vending_machine():
 
 
         products = []
-        for (drink_name, price, stock, publication_status) in cursor:
-            item = {"drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
+        for (drink_id, drink_name, price, stock, publication_status) in cursor:
+            item = {"drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
             products.append(item)
 
 
