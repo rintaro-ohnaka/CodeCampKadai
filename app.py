@@ -480,6 +480,7 @@ def challenge_mysql_board():
     if "user_name" in request.args.keys() and "comment" in request.args.keys() :
             user_name = request.args.get("user_name")
             comment = request.args.get("comment")
+            
 
     if "sort" in request.args.keys():
         sort = request.args.get("sort")
@@ -689,7 +690,7 @@ def transaction():
 
 # 18章　自動販売機
 
-@app.route("/vending_machine_admin")
+@app.route("/vending_machine_admin", methods=["GET", "POST"])
 def vending_machine():
     host = 'localhost' # データベースのホスト名又はIPアドレス
     username = 'root'  # MySQLのユーザ名
@@ -700,24 +701,33 @@ def vending_machine():
     price = ""
     stock = ""
 
-    if  "drink_name" in request.args.keys() and "price" in request.args.keys() and "stock" in request.args.keys():
-        drink_name = request.args.get("drink_name")
-        price = request.args.get("price")
-        stock = request.args.get("stock")
+    if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys():
+        drink_name = request.form["drink_name"]
+        price = request.form["price"]
+        stock = request.form["stock"]
 
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
 
         product_information = "SELECT drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+        add_product = f"INSERT INTO drink_table (drink_name, price, create_day) VALUES ('{drink_name}', '{price}', LOCALTIME())"
+        add_product_stock = f"INSERT INTO stock_table(stock, create_day) VALUES ('{stock}', LOCALTIME())"
+        stock_update = "UPDATE stock_table SET stock = {} WHERE drink_id = {}"
 
         if drink_name == "" and price == "" and stock == "":
             
             cursor.execute(product_information)
+            print('まだDBに変更を反映することができていないよ')
         
         else:
 
+            cursor.execute(add_product)
+            cursor.execute(add_product_stock)
+            cnx.commit()
             cursor.execute(product_information)
+            print('DBにコミットできているよ')
+
 
         products = []
         for (drink_name, price, stock, publication_status) in cursor:

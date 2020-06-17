@@ -9,20 +9,20 @@
         height: 100px;
     }
     table {
-        width: 600px;
+        width: 800px;
     }
 </style>
 </head>
 <body>
 <form method="post">
-   <label for="name">名前：</label>
-   <input id="name" type="text" name="name" value="{{name}}">
+   <label for="drink_name">名前：</label>
+   <input id="drink_name" type="text" name="drink_name">
 
    <label for="price">値段：</label>
-   <input id="price" type="text" name="price" value="{{price}}">
+   <input id="price" type="text" name="price">
 
-   <label for="item">個数：</label>
-   <input id="item" type="text" name="item" value="{{item}}">
+   <label for="stock">個数：</label>
+   <input id="stock" type="text" name="stock">
 
    <input type="submit" value="商品追加">
 </form>
@@ -40,7 +40,13 @@
         <tr>
             <td>{{ item.drink_name }}</td>
             <td>{{ item.price }}</td>
-            <td>{{ item.stock }}</td>
+            <td>
+                <form method="post"></form>
+                <label for="item">ここに個数が入る→</label>
+                <input type="text" name="item" value="{{item.stock}}">個
+                <input type="submit" value="変更">
+                </form>
+            </td>
             <td>{{ item.publication_status }}</td>
         </tr>
         {% endfor %}

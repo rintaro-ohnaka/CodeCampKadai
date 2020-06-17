@@ -126,3 +126,34 @@ CREATE TABLE buy_table(
     drink_id INT,
     buy_day DATETIME
 ) 
+
+-- 管理者画面、全情報
+SELECT drink_name, price, stock, publication_status 
+FROM drink_table 
+JOIN stock_table 
+ON drink_table.drink_id = stock_table.drink_id
+
+-- 管理者画面、在庫数変更
+UPDATE stock_table
+SET stock = '変更したい在庫の数'
+WHERE drink_id = '変更したいレコードのdrink_id'
+
+-- 管理者画面、商品の追加
+INSERT INTO drink_table (
+    drink_name,
+    price,
+    create_day
+) VALUES (
+    'サイダー',
+    '150',
+    LOCALTIME()
+)
+
+-- 管理者画面、商品の追加、在庫数
+INSERT INTO stock_table(
+    stock,
+    create_day
+) VALUES (
+    '5',
+    LOCALTIME()
+)
