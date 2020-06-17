@@ -696,17 +696,19 @@ def vending_machine():
     passwd   = 'wako19980207'    # MySQLのパスワード
     dbname   = 'my_database'    # データベース名
 
-    "drink_name" in request.args.keys() and "price" in request.args.keys() and "stock" in request.args.keys()
-    drink_name = request.args.get("drink_name")
-    price = request.args.get("price")
-    stock = request.args.get("stock")
+    drink_name = ""
+    price = ""
+    stock = ""
+
+    if  "drink_name" in request.args.keys() and "price" in request.args.keys() and "stock" in request.args.keys():
+        drink_name = request.args.get("drink_name")
+        price = request.args.get("price")
+        stock = request.args.get("stock")
 
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
 
-        # SQL文をここに書く
-        query = "select user_name, comment, date from board_table"
         product_information = "SELECT drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
 
         if drink_name == "" and price == "" and stock == "":
@@ -718,8 +720,8 @@ def vending_machine():
             cursor.execute(product_information)
 
         products = []
-        for (name, price, stock, publication_status) in cursor:
-            item = {"name":name, "price":price, "stock":stock, "publication_status":publication_status}
+        for (drink_name, price, stock, publication_status) in cursor:
+            item = {"drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
             products.append(item)
 
 
@@ -727,4 +729,14 @@ def vending_machine():
         "products" : products
         }
 
-    render_template("vending_machine_admin.html", **params)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("ユーザ名かパスワードに問題があります。")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("データベースが存在しません。")
+        else:
+            print(err)
+    else:
+        cnx.close()
+
+    return render_template("vending_machine_admin.html", **params)

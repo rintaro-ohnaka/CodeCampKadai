@@ -120,3 +120,9 @@ CREATE TABLE stock_table(
     update_day DATETIME,
     PRIMARY KEY (drink_id)
 )
+
+-- 購入履歴
+CREATE TABLE buy_table(
+    drink_id INT,
+    buy_day DATETIME
+) 

@@ -3,6 +3,15 @@
 <head>
    <meta charset="UTF-8">
    <title>正規表現</title>
+   <style type="text/css">
+    table, td, th {
+        border: solid black 1px;
+        height: 100px;
+    }
+    table {
+        width: 600px;
+    }
+</style>
 </head>
 <body>
 <form method="post">
@@ -18,25 +27,24 @@
    <input type="submit" value="商品追加">
 </form>
 
-<table>
-    <p>商品情報変更</p>
-    <tr>
-        <th>商品画像</th>
-        <th>商品名</th>
-        <th>価格</th>
-        <th>在庫数</th>
-        <th>ステータス</th>
-    </tr>
+    <table>
+        <p>商品画像一覧</p>
+        <tr>
+            <th>商品名</th>
+            <th>価格</th>
+            <th>在庫数</th>
+            <th>ステータス</th>
+        </tr>
 
-    {% for item in goods %}
-    <tr>
-         <td>{{ item.name }}</td>
-         <td>{{ item.price }}</td>
-         <td>{{ item.stock }}</td>
-         <td>{{ item.publication_status }}</td>
-    </tr>
-    {% endfor %}
- </table>
+        {% for item in products %}
+        <tr>
+            <td>{{ item.drink_name }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.stock }}</td>
+            <td>{{ item.publication_status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 
 </body>
 </html>
