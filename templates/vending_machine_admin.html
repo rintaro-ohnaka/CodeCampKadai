@@ -33,6 +33,7 @@
     <table>
         <p>商品画像一覧</p>
         <tr>
+            <th>商品ID</th>
             <th>商品画像</th>
             <th>商品名</th>
             <th>価格</th>
@@ -42,6 +43,7 @@
 
         {% for item in products %}
         <tr>
+            <td>{{ item.drink_id }}</td>
             <td><image src="9783675_3L1.jpg"></td>
             <td>{{ item.drink_name }}</td>
             <td>{{ item.price }}</td>
