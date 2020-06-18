@@ -109,7 +109,8 @@ CREATE TABLE drink_table(
     create_day DATETIME,
     update_day DATETIME,
     publication_status INT,
-    PRIMARY KEY (drink_id)
+    PRIMARY KEY (drink_id),
+    image VARCHAR(255)
 )
 
 -- 在庫数管理
