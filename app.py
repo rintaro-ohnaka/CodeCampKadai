@@ -703,11 +703,14 @@ def vending_machine():
     stock_id = "2"
     item = ""
     drink_id = ""
+    image = ""
 
-    if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys():
+    if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.form.keys():
         drink_name = request.form["drink_name"]
         price = request.form["price"]
         stock = request.form["stock"]
+        # image = request.form["image"]
+        image = request.form["image"]
 
     if "item" in request.form.keys() and "drink_id" in request.form.keys():
         item = request.form["item"]
@@ -717,8 +720,8 @@ def vending_machine():
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
 
-        product_information = "SELECT drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
-        add_product = f"INSERT INTO drink_table (drink_name, price, create_day) VALUES ('{drink_name}', '{price}', LOCALTIME())"
+        product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+        add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{image}')"
         add_product_stock = f"INSERT INTO stock_table(stock, create_day) VALUES ('{stock}', LOCALTIME())"
         stock_update = f"UPDATE stock_table SET stock = '{item}' WHERE drink_id = '{drink_id}' "
 
@@ -730,7 +733,7 @@ def vending_machine():
             # cursor.execute(product_information)
             print('在庫変更ができているよ')
 
-        if drink_name == "" and price == "" and stock == "":
+        if drink_name == "" and price == "" and stock == "" and image == "":
             
             cursor.execute(product_information)
             print('まだDBに変更を反映することができていないよ')
@@ -745,8 +748,8 @@ def vending_machine():
 
 
         products = []
-        for (drink_id, drink_name, price, stock, publication_status) in cursor:
-            item = {"drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
+        for (drink_name, price, stock, publication_status, image) in cursor:
+            item = {"drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status, "image":image}
             products.append(item)
 
 

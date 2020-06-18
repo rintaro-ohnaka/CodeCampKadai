@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
    <meta charset="UTF-8">
-   <title>正規表現</title>
+   <title>自動販売機</title>
    <style type="text/css">
     table, td, th {
         border: solid black 1px;
@@ -24,12 +24,16 @@
    <label for="stock">個数：</label>
    <input id="stock" type="text" name="stock">
 
+   <label for="image">画像：</label>
+   <input id="image" type="file" name="image">
+
    <input type="submit" value="商品追加">
 </form>
 
     <table>
         <p>商品画像一覧</p>
         <tr>
+            <th>商品画像</th>
             <th>商品名</th>
             <th>価格</th>
             <th>在庫数</th>
@@ -38,6 +42,7 @@
 
         {% for item in products %}
         <tr>
+            <td><image src="9783675_3L1.jpg"></td>
             <td>{{ item.drink_name }}</td>
             <td>{{ item.price }}</td>
             <td>
