@@ -748,8 +748,8 @@ def vending_machine():
 
 
         products = []
-        for (drink_id, image, drink_name, price, stock, publication_status) in cursor:
-            item = {"drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status, "image":image}
+        for (image, drink_id, drink_name, price, stock, publication_status) in cursor:
+            item = {"image":image, "drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
             products.append(item)
 
 

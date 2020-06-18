@@ -44,6 +44,7 @@
         {% for item in products %}
         <tr>
             <td>{{ item.drink_id }}</td>
+            <!-- ここのsrcで画像の保存先のpathがあっていれは表示できるんじゃね？ -->
             <td><image src="9783675_3L1.jpg"></td>
             <td>{{ item.drink_name }}</td>
             <td>{{ item.price }}</td>
@@ -51,9 +52,9 @@
                 <form method="post">
                     <label for="item">ここに個数が入る→</label>
                     <input type="text" name="item" value="{{item.stock}}">個
+                    <input type="hidden" name="drink_id" value="{{item.drink_id}}">
                     <!-- <input type="text" name="item" value="" placeholder="{{item.stock}}">個 -->
                     <!-- <input type="text" name="item">個 -->
-                    <input type="hidden" name="drink_id" value="{{item.drink_id}}">
                     <!-- <input type="hidden" value="{{item.drink_id}}"> -->
                     <input type="submit" value="変更">
                 </form>
