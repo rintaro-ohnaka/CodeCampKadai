@@ -715,6 +715,7 @@ def vending_machine():
     item = ""
     drink_id = ""
     image = ""
+    filename = ""
 
     if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.files:
         drink_name = request.form["drink_name"]
@@ -733,21 +734,23 @@ def vending_machine():
         # with open("/Users/ronaka/Desktop/myproject/static" + image, 'wb') as f:
         #     f.write(image)
 
+        # これでformから受け取った画像を保存する
         image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         # ここにディレクトリに画像を保存するコードを書き込む
-        test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
+        # test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
 
         # image.append("/Users/ronaka/Desktop/myproject/static")
 
 
         # ここにディレクトリに画像を保存するコードを書き込む
-        test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
+        # test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
         
 
-    if "item" in request.form.keys() and "drink_id" in request.form.keys():
-        item = request.form["item"]
+    if "stock" in request.form.keys() and "drink_id" in request.form.keys():
+        stock = request.form["stock"]
         drink_id = request.form["drink_id"]
+        
 
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
@@ -757,22 +760,28 @@ def vending_machine():
         sql_img = "./static/" + filename
 
         product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
-        add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
-        add_product_stock = f"INSERT INTO stock_table(stock, create_day) VALUES ('{stock}', LOCALTIME())"
-        stock_update = f"UPDATE stock_table SET stock = '{item}' update_day = 'LOCALTIME()' WHERE drink_id = '{drink_id}' "
+        # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
+        add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}')"
+        add_product_stock = f"INSERT INTO stock_table(stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
+        # このstock_updateが元のコード
+        stock_update = f"UPDATE stock_table SET stock = '{stock}', update_day = LOCALTIME() WHERE drink_id = '{drink_id}' "
+        # stock_update = f"UPDATE stock_table SET stock = '{item}' WHERE drink_id = '{drink_id}' "
+        # カラムはもう存在するので、既存のカラムに値を入れるSQL文はないのだろうか？
+        # stock_update_day = f""
 
 
-        if re.search('[0-9]', item):
+        if re.search('[0-9]', stock):
             
             cursor.execute(stock_update)
             cnx.commit()
             # cursor.execute(product_information)
             print('在庫変更ができているよ')
 
-        if drink_name == "" and price == "" and stock == "" and image == "":
+        if re.search('[0-9]', stock) or drink_name == "" and price == "" and image == "" and stock == "":
             
             cursor.execute(product_information)
             print('まだDBに変更を反映することができていないよ')
+
 
         else:
 
