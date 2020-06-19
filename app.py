@@ -689,6 +689,7 @@ def transaction():
 
 
 # 18章　自動販売機
+import os
 
 @app.route("/vending_machine_admin", methods=["GET", "POST"])
 def vending_machine():
@@ -712,6 +713,10 @@ def vending_machine():
         # image = request.form["image"]
         image = request.form["image"]
 
+        # ここにディレクトリに画像を保存するコードを書き込む
+        os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
+        
+
     if "item" in request.form.keys() and "drink_id" in request.form.keys():
         item = request.form["item"]
         drink_id = request.form["drink_id"]
@@ -720,10 +725,13 @@ def vending_machine():
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
 
+        # ここにtableに入れるデータの変数を書き込む
+        sql_img = "/Users/ronaka/Desktop/myproject/static" + image
+
         product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
-        add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{image}')"
+        add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
         add_product_stock = f"INSERT INTO stock_table(stock, create_day) VALUES ('{stock}', LOCALTIME())"
-        stock_update = f"UPDATE stock_table SET stock = '{item}' WHERE drink_id = '{drink_id}' "
+        stock_update = f"UPDATE stock_table SET stock = '{item}' update_day = 'LOCALTIME()' WHERE drink_id = '{drink_id}' "
 
 
         if re.search('[0-9]', item):
