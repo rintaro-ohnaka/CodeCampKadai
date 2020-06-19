@@ -11,6 +11,10 @@
     table {
         width: 800px;
     }
+    img{
+        width: 100px;
+        height: 200px;
+    }
 </style>
 </head>
 <body>
@@ -45,7 +49,8 @@
         <tr>
             <td>{{ item.drink_id }}</td>
             <!-- ここのsrcで画像の保存先のpathがあっていれは表示できるんじゃね？ -->
-            <td><image src=></td>
+            <td><image src="{{ item.image }}"></td>
+            <!-- <td>{{ item.image }}</td> -->
             <td>{{ item.drink_name }}</td>
             <td>{{ item.price }}</td>
             <td>

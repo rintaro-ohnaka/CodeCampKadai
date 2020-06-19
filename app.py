@@ -695,7 +695,7 @@ from PIL import Image
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
-UPLOAD_FOLDER = '/Users/ronaka/Desktop/myproject/static'
+UPLOAD_FOLDER = '/Users/ronaka/Desktop/myproject/static/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
@@ -754,7 +754,7 @@ def vending_machine():
         cursor = cnx.cursor()
 
         # ここにtableに入れるデータの変数を書き込む
-        sql_img = "/Users/ronaka/Desktop/myproject/static" + filename
+        sql_img = "./static/" + filename
 
         product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
         add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
