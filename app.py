@@ -690,6 +690,16 @@ def transaction():
 
 # 18章　自動販売機
 import os
+from PIL import Image
+
+from flask import Flask, flash, request, redirect, url_for
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = '/Users/ronaka/Desktop/myproject/static'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route("/vending_machine_admin", methods=["GET", "POST"])
 def vending_machine():
@@ -706,15 +716,33 @@ def vending_machine():
     drink_id = ""
     image = ""
 
-    if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.form.keys():
+    if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.files:
         drink_name = request.form["drink_name"]
         price = request.form["price"]
         stock = request.form["stock"]
         # image = request.form["image"]
-        image = request.form["image"]
+        image = request.files["image"]
+
+        filename = secure_filename(image.filename)
+
+        # Pillowモジュールでうまく画像の取り込みができるのでは？という仮説に基づき作ってみる
+        # img = Image.open(image)
+        # img.save("/Users/ronaka/Desktop/myproject/static" + f"{image}")
+
+        # with openで保存できそう？
+        # with open("/Users/ronaka/Desktop/myproject/static" + image, 'wb') as f:
+        #     f.write(image)
+
+        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         # ここにディレクトリに画像を保存するコードを書き込む
-        os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
+        test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
+
+        # image.append("/Users/ronaka/Desktop/myproject/static")
+
+
+        # ここにディレクトリに画像を保存するコードを書き込む
+        test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
         
 
     if "item" in request.form.keys() and "drink_id" in request.form.keys():
