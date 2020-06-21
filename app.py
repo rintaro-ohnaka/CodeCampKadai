@@ -762,7 +762,7 @@ def vending_machine():
         product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
         # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
         add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}')"
-        add_product_stock = f"INSERT INTO stock_table(stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
+        add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
         # このstock_updateが元のコード
         stock_update = f"UPDATE stock_table SET stock = '{stock}', update_day = LOCALTIME() WHERE drink_id = '{drink_id}' "
         # stock_update = f"UPDATE stock_table SET stock = '{item}' WHERE drink_id = '{drink_id}' "
@@ -770,26 +770,42 @@ def vending_machine():
         # stock_update_day = f""
 
 
-        if re.search('[0-9]', stock):
+        # if re.search('[0-9]', stock):
             
+        #     cursor.execute(stock_update)
+        #     cnx.commit()
+        #     print('在庫変更ができているよ')
+
+        # if re.search('[0-9]', stock) or drink_name == "" and price == "" and image == "" and stock == "":
+            
+        #     cursor.execute(product_information)
+        #     print('まだDBに変更を反映することができていないよ')
+
+
+        # else:
+
+        #     cursor.execute(add_product)
+        #     cursor.execute(add_product_stock)
+        #     cnx.commit()
+        #     cursor.execute(product_information)
+        #     print('DBにコミットできているよ')
+
+        if re.search('[0-9]', stock) and re.search('[0-9]', drink_id):
             cursor.execute(stock_update)
             cnx.commit()
-            # cursor.execute(product_information)
-            print('在庫変更ができているよ')
-
-        if re.search('[0-9]', stock) or drink_name == "" and price == "" and image == "" and stock == "":
-            
             cursor.execute(product_information)
-            print('まだDBに変更を反映することができていないよ')
+            print('在庫数変更の条件分岐がうまくいっている')
 
+        elif drink_name == "" and price == "" and stock == "" and image == "":
+            cursor.execute(product_information)
+            print('何もformから値を送信していないよ')
 
         else:
-
             cursor.execute(add_product)
             cursor.execute(add_product_stock)
             cnx.commit()
             cursor.execute(product_information)
-            print('DBにコミットできているよ')
+            print('商品の追加ができて、一覧に反映されているはずだよ')
 
 
         products = []
