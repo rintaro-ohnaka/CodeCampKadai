@@ -851,7 +851,9 @@ def vending_machine_buy():
 
     if "money" in request.form.keys() and "select_button" in request.form.keys():
         money = request.form["money"]
-        drink_id = request.form["select_button"]
+        select_button = request.form["select_button"]
+
+        
 
         # ここにおつりが出るロジックを書く
         # drink_change = int(money) - int(price)
@@ -862,34 +864,41 @@ def vending_machine_buy():
 
 
         product_information = "SELECT drink_id, image, drink_name, price FROM drink_table"
+        cursor.execute(product_information)
 
         # もしformで送ったmoney変数に値がない場合、実行
-        if money == "":
+        # if money == "":
             
-            cursor.execute(product_information)
-
-        # もしformで送った金額に値が入っていれば、実行
-        else:
-
-            products = []
-
-            params = {
-            "products" : products
-            }
-            return render_template("vending_machine_result.html", **params)
             # cursor.execute(product_information)
 
+        # もしformで送った金額に値が入っていれば、実行
+        # else:
 
+        #     products = []
+
+        #     params = {
+        #     "products" : products
+        #     }
+        #     return render_template("vending_machine_result.html", **params)
+            # cursor.execute(product_information)
 
         products = []
+        bought = []
         for (drink_id, image, drink_name, price) in cursor:
             item = {"drink_id":drink_id, "image":image, "drink_name":drink_name, "price":price}
             products.append(item)
             print(item)
+            if item["drink_id"] == select_button:
+                bought.append(item)
 
         params = {
-        "products" : products
+        "products" : products,
+        "bought" : bought
         }
+
+        if money != "":
+            return render_template("vending_machine_result.html", **params)
+
 
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:

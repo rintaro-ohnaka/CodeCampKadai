@@ -13,11 +13,11 @@
 <body>
 <h1>自動販売機結果</h1>
     <!-- ここに商品の画像、商品名、価格、そして商品選択ボタンを設置する -->
-    {% if products %}
+    {% if bought %}
     <p>
-    <img src="{{ products.image }}">
-    {{ products.drink_name }}
-    {{ products.price }}
+    <img src="{{ bought.image }}">
+    {{ bought.drink_name }}
+    {{ bought.price }}
     
     </p>
     {% endif %}
