@@ -876,7 +876,7 @@ def vending_machine_buy():
             params = {
             "products" : products
             }
-            render_template("vending_machine_result.html", **params)
+            return render_template("vending_machine_result.html", **params)
             # cursor.execute(product_information)
 
 
@@ -885,6 +885,7 @@ def vending_machine_buy():
         for (drink_id, image, drink_name, price) in cursor:
             item = {"drink_id":drink_id, "image":image, "drink_name":drink_name, "price":price}
             products.append(item)
+            print(item)
 
         params = {
         "products" : products

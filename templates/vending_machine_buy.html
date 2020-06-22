@@ -24,7 +24,7 @@
     {{ item.drink_name }}
     {{ item.price }}
     
-    <input type="radio" name="select_button" value={{item.id}} {{'checked' if button == "select_button"}}>
+    <input type="radio" name="select_button" value={{item.drink_id}} {{'checked' if button == "select_button"}}>
     </p>
     {% endfor %}
 
