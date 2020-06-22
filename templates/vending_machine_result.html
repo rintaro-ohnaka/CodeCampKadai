@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <title>購入結果ページ</title>
+   <style type="text/css">
+    img{
+        width: 180px;
+        height: 200px;
+    }
+    </style>
+</head>
+<body>
+<h1>自動販売機結果</h1>
+    <!-- ここに商品の画像、商品名、価格、そして商品選択ボタンを設置する -->
+    {% if products %}
+    <p>
+    <img src="{{ products.image }}">
+    {{ products.drink_name }}
+    {{ products.price }}
+    
+    </p>
+    {% endif %}
+
+</body>
+</html>

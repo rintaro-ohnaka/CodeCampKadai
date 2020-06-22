@@ -702,7 +702,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route("/vending_machine_admin", methods=["GET", "POST"])
-def vending_machine():
+def vending_machine_admin():
     host = 'localhost' # データベースのホスト名又はIPアドレス
     username = 'root'  # MySQLのユーザ名
     passwd   = 'wako19980207'    # MySQLのパスワード
@@ -711,8 +711,8 @@ def vending_machine():
     drink_name = ""
     price = ""
     stock = ""
-    stock_id = "2"
-    item = ""
+    # stock_id = "2"
+    # item = ""
     drink_id = ""
     image = ""
     filename = ""
@@ -747,10 +747,14 @@ def vending_machine():
         # test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
         
 
-    if "stock" in request.form.keys() and "drink_id" in request.form.keys():
+    elif "stock" in request.form.keys() and "drink_id" in request.form.keys():
         stock = request.form["stock"]
         drink_id = request.form["drink_id"]
-        
+
+    
+    else:
+        add_error_message = "名前、値段、個数、画像のどれかがおかしいよ！"
+        render_template("vending_machine_admin.html")
 
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
@@ -829,3 +833,71 @@ def vending_machine():
         cnx.close()
 
     return render_template("vending_machine_admin.html", **params)
+
+
+# 購入者画面のロジック　
+@app.route("/vending_machine_buy", methods=["GET", "POST"])
+def vending_machine_buy():
+    host = 'localhost' # データベースのホスト名又はIPアドレス
+    username = 'root'  # MySQLのユーザ名
+    passwd   = 'wako19980207'    # MySQLのパスワード
+    dbname   = 'my_database'    # データベース名
+
+    money = ""
+    change = ""
+    product_price = ""
+    drink_price = ""
+    drink_change = ""
+
+    if "money" in request.form.keys() and "select_button" in request.form.keys():
+        money = request.form["money"]
+        drink_id = request.form["select_button"]
+
+        # ここにおつりが出るロジックを書く
+        # drink_change = int(money) - int(price)
+
+    try:
+        cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+        cursor = cnx.cursor()
+
+
+        product_information = "SELECT drink_id, image, drink_name, price FROM drink_table"
+
+        # もしformで送ったmoney変数に値がない場合、実行
+        if money == "":
+            
+            cursor.execute(product_information)
+
+        # もしformで送った金額に値が入っていれば、実行
+        else:
+
+            products = []
+
+            params = {
+            "products" : products
+            }
+            render_template("vending_machine_result.html", **params)
+            # cursor.execute(product_information)
+
+
+
+        products = []
+        for (drink_id, image, drink_name, price) in cursor:
+            item = {"drink_id":drink_id, "image":image, "drink_name":drink_name, "price":price}
+            products.append(item)
+
+        params = {
+        "products" : products
+        }
+
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("ユーザ名かパスワードに問題があります。")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("データベースが存在しません。")
+        else:
+            print(err)
+    else:
+        cnx.close()
+
+    return render_template("vending_machine_buy.html", **params)

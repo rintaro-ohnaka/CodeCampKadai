@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <title>購入ページ</title>
+   <style type="text/css">
+    img{
+        width: 180px;
+        height: 200px;
+    }
+    </style>
+</head>
+<body>
+<h1>購入者側ページ</h1>
+<form method="post">
+    <p>
+    <label>金額：<input id="money" type="text" name="money"></label>
+    </p>
+
+    <!-- ここに商品の画像、商品名、価格、そして商品選択ボタンを設置する -->
+    {% for item in products %}
+    <p>
+    <img src="{{ item.image }}">
+    {{ item.drink_name }}
+    {{ item.price }}
+    
+    <input type="radio" name="select_button" value={{item.id}} {{'checked' if button == "select_button"}}>
+    </p>
+    {% endfor %}
+
+    <p><button type="submit" name="aaa" value="aaa">商品購入</p>
+
+</form>
+
+<!-- ここにdrink_nameを表示 -->
+
+<!-- ここにお釣りを表示 -->
+
+</body>
+</html>
