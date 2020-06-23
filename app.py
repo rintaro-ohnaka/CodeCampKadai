@@ -848,12 +848,17 @@ def vending_machine_buy():
     product_price = ""
     drink_price = ""
     drink_change = ""
+    select_button = ""
 
     if "money" in request.form.keys() and "select_button" in request.form.keys():
         money = request.form["money"]
         select_button = request.form["select_button"]
 
-        
+    if select_button != "" and select_button != None:
+        select_button = int(select_button)
+
+    if money != "" and money != None:
+        money = int(money)
 
         # ここにおつりが出るロジックを書く
         # drink_change = int(money) - int(price)
@@ -863,8 +868,13 @@ def vending_machine_buy():
         cursor = cnx.cursor()
 
 
-        product_information = "SELECT drink_id, image, drink_name, price FROM drink_table"
+        product_information = "SELECT drink_table.drink_id, image, drink_name, price, stock FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+
+        # stock_delete = f"UPDATE stock_table SET stock = '{product_stock_delete}', update_day = LOCALTIME() WHERE drink_id = '{select_button}' "
+
         cursor.execute(product_information)
+
+        # stock_update = f"UPDATE stock_table SET stock = '{stock}', update_day = LOCALTIME() WHERE drink_id = '{drink_id}' "
 
         # もしformで送ったmoney変数に値がない場合、実行
         # if money == "":
@@ -884,20 +894,50 @@ def vending_machine_buy():
 
         products = []
         bought = []
-        for (drink_id, image, drink_name, price) in cursor:
-            item = {"drink_id":drink_id, "image":image, "drink_name":drink_name, "price":price}
+        # bought = ""
+        for (drink_id, image, drink_name, price, stock) in cursor:
+            item = {"drink_id":drink_id, "image":image, "drink_name":drink_name, "price":price, "stock":stock}
             products.append(item)
-            print(item)
+            
             if item["drink_id"] == select_button:
                 bought.append(item)
+                # bought = item
 
-        params = {
-        "products" : products,
-        "bought" : bought
-        }
+
+                bought_drink_all = bought[0]
+                product_price = bought_drink_all["price"]
+                drink_change = money - product_price
+                print("お釣りの計算ができている？")
+
+                
+
+                product_stock = bought_drink_all["stock"]
+                product_stock_delete = product_stock - 1
+                
+
+        # params = {
+        # "products" : products,
+        # "bought" : bought
+        # }
 
         if money != "":
+            params = {
+            "bought" : bought,
+            "drink_change" : drink_change
+            }
+
+            # 在庫数を減らす
+            stock_delete = f"UPDATE stock_table SET stock = {product_stock_delete}, update_day = LOCALTIME() WHERE drink_id = {select_button} "
+            cursor.execute(stock_delete)
+            cnx.commit()
+            
             return render_template("vending_machine_result.html", **params)
+
+        else:
+            params = {
+            "products" : products,
+            "bought" : bought
+            }
 
 
     except mysql.connector.Error as err:

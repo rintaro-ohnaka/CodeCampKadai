@@ -13,14 +13,17 @@
 <body>
 <h1>自動販売機結果</h1>
     <!-- ここに商品の画像、商品名、価格、そして商品選択ボタンを設置する -->
-    {% if bought %}
+    {% for item in bought %}
     <p>
-    <img src="{{ bought.image }}">
-    {{ bought.drink_name }}
-    {{ bought.price }}
+    <img src="{{ item.image }}">
+    <!-- {{ item.drink_name }} -->
+    {{ item.price }}
     
     </p>
-    {% endif %}
+    <p>ガシャコン！{{ item.drink_name }}が買えたお</p>
+    <p>おつりは{{ drink_change }}円よ！</p>
+    {% endfor %}
 
+    <button onclick="history.back()">戻る</button>
 </body>
 </html>
