@@ -716,14 +716,18 @@ def vending_machine_admin():
     drink_id = ""
     image = ""
     filename = ""
+    status = ""
+    aaa = ""
 
-    if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.files:
+    if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.files and "status_selector" in request.form.keys():
         drink_name = request.form["drink_name"]
         price = request.form["price"]
         stock = request.form["stock"]
         # image = request.form["image"]
         image = request.files["image"]
-
+        # statusに0,1,""の値が入る予定
+        status = request.form["status_selector"]
+        
         filename = secure_filename(image.filename)
 
         # Pillowモジュールでうまく画像の取り込みができるのでは？という仮説に基づき作ってみる
@@ -765,13 +769,14 @@ def vending_machine_admin():
 
         product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
         # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
-        add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}')"
+        add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image, publication_status) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}', '{status}')"
         add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
         # このstock_updateが元のコード
         stock_update = f"UPDATE stock_table SET stock = '{stock}', update_day = LOCALTIME() WHERE drink_id = '{drink_id}' "
         # stock_update = f"UPDATE stock_table SET stock = '{item}' WHERE drink_id = '{drink_id}' "
         # カラムはもう存在するので、既存のカラムに値を入れるSQL文はないのだろうか？
         # stock_update_day = f""
+        
 
 
         # if re.search('[0-9]', stock):
@@ -868,7 +873,7 @@ def vending_machine_buy():
         cursor = cnx.cursor()
 
 
-        product_information = "SELECT drink_table.drink_id, image, drink_name, price, stock FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+        product_information = "SELECT drink_table.drink_id, image, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
 
         # stock_delete = f"UPDATE stock_table SET stock = '{product_stock_delete}', update_day = LOCALTIME() WHERE drink_id = '{select_button}' "
 
@@ -895,8 +900,8 @@ def vending_machine_buy():
         products = []
         bought = []
         # bought = ""
-        for (drink_id, image, drink_name, price, stock) in cursor:
-            item = {"drink_id":drink_id, "image":image, "drink_name":drink_name, "price":price, "stock":stock}
+        for (drink_id, image, drink_name, price, stock, publication_status) in cursor:
+            item = {"drink_id":drink_id, "image":image, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
             products.append(item)
             
             if item["drink_id"] == select_button:

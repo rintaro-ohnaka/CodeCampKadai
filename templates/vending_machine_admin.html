@@ -32,6 +32,12 @@
    <p><label for="image">画像：</label>
    <input id="image" type="file" name="image"></p>
 
+    <p><select name="status_selector">
+        <option value="" {% if nothing_check %} checked {% endif %}>選択してください</option>
+        <option value=1 {% if public_check %} checked {% endif %}>公開</option>
+        <option value=0 {% if private_check %} checked {% endif %}>非公開</option>
+    </select></p>
+
    <p><input type="submit" value="商品追加"></p>
 </form>
 
@@ -65,7 +71,16 @@
                     <input type="submit" value="変更">
                 </form>
             </td>
-            <td>{{ item.publication_status }}</td>
+            <td>
+                <form method="post">
+                    {% if item.publication_status == 1 %}
+                    <button type="submit" name="change_status" value={{item.publication_status}}>公開</button>
+                    {% elif item.publication_status == 0 %}
+                    <p><button type="submit" name="change_status" value={{item.publication_status}}>非公開</button></p>
+                    {% endif %}
+                </form>
+                <!-- {{ item.publication_status }} -->
+            </td>
         </tr>
         {% endfor %}
     </table>

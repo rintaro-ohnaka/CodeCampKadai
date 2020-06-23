@@ -19,13 +19,16 @@
 
     <!-- ここに商品の画像、商品名、価格、そして商品選択ボタンを設置する -->
     {% for item in products %}
-    <p>
-    <img src="{{ item.image }}">
-    {{ item.drink_name }}
-    {{ item.price }}
-    
-    <input type="radio" name="select_button" value={{item.drink_id}} {{'checked' if button == "select_button"}}>
-    </p>
+        {% if item.publication_status == 1 %}
+            <p>
+            <img src="{{ item.image }}">
+            {{ item.drink_name }}
+            {{ item.price }}
+            
+            <input type="radio" name="select_button" value={{item.drink_id}} {{'checked' if button == "select_button"}}>
+            </p>
+        {% else %}
+        {% endif %}
     {% endfor %}
 
     <p><button type="submit" name="aaa" value="aaa">商品購入</p>
