@@ -879,7 +879,9 @@ def vending_machine_buy():
         money = request.form["money"]
         select_button = request.form["select_button"]
     
-
+    if money == "" and "select_button" in request.form.keys():
+        
+        money_error_message = "お金入れてねーぞ！金払え！"
 
     if select_button != "" and select_button != None:
         select_button = int(select_button)
@@ -921,12 +923,18 @@ def vending_machine_buy():
 
         products = []
         bought = []
+        money_error_message = ""
         # bought = ""
         for (drink_id, image, drink_name, price, stock, publication_status) in cursor:
             item = {"drink_id":drink_id, "image":image, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
             products.append(item)
+
+            if money == "" and select_button != "":
+                money_error_message = "お金入れてねーぞ！金払え！"
+
+
             
-            if item["drink_id"] == select_button:
+            if money != "" and item["drink_id"] == select_button:
                 bought.append(item)
                 # bought = item
 
@@ -963,8 +971,11 @@ def vending_machine_buy():
         else:
             params = {
             "products" : products,
-            "bought" : bought
+            "bought" : bought,
+            "money_error_message" : money_error_message
             }
+
+            return render_template("vending_machine_buy.html", **params)
 
 
     except mysql.connector.Error as err:

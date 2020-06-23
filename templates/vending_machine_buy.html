@@ -12,6 +12,9 @@
 </head>
 <body>
 <h1>購入者側ページ</h1>
+{% if money_error_message %}
+<h2>{{ money_error_message }}</h2>
+{% endif %}
 <form method="post">
     <p>
     <label>金額：<input id="money" type="text" name="money"></label>
