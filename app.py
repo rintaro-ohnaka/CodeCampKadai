@@ -718,6 +718,8 @@ def vending_machine_admin():
     filename = ""
     status = ""
     aaa = ""
+    status_drink_id = ""
+    change_status = ""
 
     if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.files and "status_selector" in request.form.keys():
         drink_name = request.form["drink_name"]
@@ -755,6 +757,9 @@ def vending_machine_admin():
         stock = request.form["stock"]
         drink_id = request.form["drink_id"]
 
+    elif "change_status" in request.form.keys() and "status_drink_id" in request.form.keys():
+        change_status = int(request.form["change_status"])
+        status_drink_id = int(request.form["status_drink_id"])
     
     else:
         add_error_message = "名前、値段、個数、画像のどれかがおかしいよ！"
@@ -777,7 +782,8 @@ def vending_machine_admin():
         # カラムはもう存在するので、既存のカラムに値を入れるSQL文はないのだろうか？
         # stock_update_day = f""
         
-
+        change_status_private = f"UPDATE drink_table SET publication_status = 0 WHERE drink_id = {status_drink_id} "
+        change_status_public = f"UPDATE drink_table SET publication_status = 1 WHERE drink_id = {status_drink_id} "
 
         # if re.search('[0-9]', stock):
             
@@ -804,6 +810,20 @@ def vending_machine_admin():
             cnx.commit()
             cursor.execute(product_information)
             print('在庫数変更の条件分岐がうまくいっている')
+
+        # 公開、非公開
+        elif change_status == 1 and status_drink_id != "":
+            cursor.execute(change_status_private)
+            cnx.commit()
+            cursor.execute(product_information)
+            print("非公開にすることができた")
+
+        elif change_status == 0 and status_drink_id != "":
+            cursor.execute(change_status_public)
+            cnx.commit()
+            cursor.execute(product_information)
+            print("公開することができた")
+            
 
         elif drink_name == "" and price == "" and stock == "" and image == "":
             cursor.execute(product_information)
@@ -858,6 +878,8 @@ def vending_machine_buy():
     if "money" in request.form.keys() and "select_button" in request.form.keys():
         money = request.form["money"]
         select_button = request.form["select_button"]
+    
+
 
     if select_button != "" and select_button != None:
         select_button = int(select_button)

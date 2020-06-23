@@ -9,7 +9,7 @@
         height: 100px;
     }
     table {
-        width: 800px;
+        width: 1000px;
     }
     img{
         width: 180px;
@@ -74,9 +74,11 @@
             <td>
                 <form method="post">
                     {% if item.publication_status == 1 %}
-                    <button type="submit" name="change_status" value={{item.publication_status}}>公開</button>
+                    <input type="hidden" name="status_drink_id" value={{item.drink_id}}>
+                    <button type="submit" name="change_status" value={{item.publication_status}}>非公開にする</button>
                     {% elif item.publication_status == 0 %}
-                    <p><button type="submit" name="change_status" value={{item.publication_status}}>非公開</button></p>
+                    <input type="hidden" name="status_drink_id" value={{item.drink_id}}>
+                    <button type="submit" name="change_status" value={{item.publication_status}}>公開にする</button>
                     {% endif %}
                 </form>
                 <!-- {{ item.publication_status }} -->

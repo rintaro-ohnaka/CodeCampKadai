@@ -25,7 +25,12 @@
             {{ item.drink_name }}
             {{ item.price }}
             
+            {% if item.stock == 0 %}
+                売り切れ
+            {% else %}
             <input type="radio" name="select_button" value={{item.drink_id}} {{'checked' if button == "select_button"}}>
+            {% endif %}
+
             </p>
         {% else %}
         {% endif %}
