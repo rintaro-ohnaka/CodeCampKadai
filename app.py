@@ -1054,6 +1054,10 @@ def vending_machine_buy():
             # 在庫数を減らす
             stock_delete = f"UPDATE stock_table SET stock = {product_stock_delete}, update_day = LOCALTIME() WHERE drink_id = {select_button} "
             cursor.execute(stock_delete)
+            # 購入した記録をする
+            purchase_record = f"INSERT INTO bought_table (drink_id, bought_day) VALUES ('{select_button}', LOCALTIME()) "
+            cursor.execute(purchase_record)
+
             cnx.commit()
             
             return render_template("vending_machine_result.html", **params)

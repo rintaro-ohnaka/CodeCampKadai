@@ -101,7 +101,8 @@ ON order_detail_table.goods_id = goods_table.goods_id
 GROUP BY customer_name
 
 
--- 18章　自動販売機　ドリンク情報
+-- 18章 自動販売機
+--商品情報テーブル
 CREATE TABLE drink_table(
     drink_id INT AUTO_INCREMENT,
     drink_name VARCHAR(255),
@@ -113,7 +114,7 @@ CREATE TABLE drink_table(
     image VARCHAR(255)
 )
 
--- 在庫数管理
+-- 在庫数管理テーブル
 CREATE TABLE stock_table(
     drink_id INT AUTO_INCREMENT,
     stock INT,
@@ -122,11 +123,11 @@ CREATE TABLE stock_table(
     PRIMARY KEY (drink_id)
 )
 
--- 購入履歴
-CREATE TABLE buy_table(
+-- 購入履歴テーブル
+CREATE TABLE bought_table(
     drink_id INT,
-    buy_day DATETIME
-) 
+    bought_day DATETIME
+)
 
 -- 管理者画面、全情報
 SELECT drink_name, price, stock, publication_status 
