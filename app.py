@@ -732,7 +732,7 @@ def vending_machine_admin():
         drink_name = request.form["drink_name"]
         price = request.form["price"]
 
-        if re.search('0-9', price):
+        if re.search('[0-9]', price):
             price_error_message = ""
         else:
             price_error_message = "値段は０以上の整数しか入れられないよ"
@@ -740,7 +740,7 @@ def vending_machine_admin():
         # if re.search(['0-9'], price)
         stock = request.form["stock"]
 
-        if re.search('0-9', stock):
+        if re.search('[0-9]', stock):
             stock_error_message = ""
         else:
             stock_error_message = "在庫数は０以上の整数しか入れられないよ"
@@ -788,7 +788,7 @@ def vending_machine_admin():
         stock = request.form["stock"]
         drink_id = request.form["drink_id"]
 
-        if re.search('0-9', stock):
+        if re.search('[0-9]', stock):
             stock_error_message = ""
         else:
             stock_error_message = "在庫数は０以上の整数しか入れられないよ"

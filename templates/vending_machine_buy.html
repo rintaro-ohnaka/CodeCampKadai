@@ -36,10 +36,10 @@
             <p>
             <img src="{{ item.image }}">
             {{ item.drink_name }}
-            {{ item.price }}
+            {{ item.price }}円
             
             {% if item.stock == 0 %}
-                売り切れ
+                <font color="red">売り切れ</font>
             {% else %}
             <input type="radio" name="select_button" value={{item.drink_id}} {{'checked' if button == "select_button"}}>
             {% endif %}
