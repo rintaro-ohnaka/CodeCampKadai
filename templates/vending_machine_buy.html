@@ -8,12 +8,22 @@
         width: 180px;
         height: 200px;
     }
+    h2{
+        color: red;
+    }
     </style>
 </head>
 <body>
 <h1>購入者側ページ</h1>
 {% if money_error_message %}
 <h2>{{ money_error_message }}</h2>
+{% endif %}
+{% if drink_bought_error %}
+<h2>{{ drink_bought_error }}</h2>
+{% endif %}
+
+{% if my_money_error_message %}
+<h2>{{ my_money_error_message }}</h2>
 {% endif %}
 <form method="post">
     <p>

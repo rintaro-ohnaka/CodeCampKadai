@@ -696,7 +696,8 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = '/Users/ronaka/Desktop/myproject/static/'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+# ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpeg'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -720,15 +721,42 @@ def vending_machine_admin():
     aaa = ""
     status_drink_id = ""
     change_status = ""
+    add_error_message = ""
+    add_drink_button = ""
+    success_message = ""
+    status_error_message = ""
+    stock_error_message = ""
+    price_error_message = ""
 
     if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.files and "status_selector" in request.form.keys():
         drink_name = request.form["drink_name"]
         price = request.form["price"]
+
+        if re.search('0-9', price):
+            price_error_message = ""
+        else:
+            price_error_message = "値段は０以上の整数しか入れられないよ"
+
+        # if re.search(['0-9'], price)
         stock = request.form["stock"]
+
+        if re.search('0-9', stock):
+            stock_error_message = ""
+        else:
+            stock_error_message = "在庫数は０以上の整数しか入れられないよ"
+
         # image = request.form["image"]
         image = request.files["image"]
+
+        # if re.search('[a-z0-9].[a-z]', mail)
+
         # statusに0,1,""の値が入る予定
         status = request.form["status_selector"]
+
+        if status == "" or status == None:
+            status_error_message = "公開非公開を選択しろ"
+        else:
+            status_error_message = ""
         
         filename = secure_filename(image.filename)
 
@@ -740,8 +768,12 @@ def vending_machine_admin():
         # with open("/Users/ronaka/Desktop/myproject/static" + image, 'wb') as f:
         #     f.write(image)
 
+        if filename == "" or filename == None:
+            image = ""
+            add_error_message = "名前、値段、個数、画像のどれか入力されてないよ"
         # これでformから受け取った画像を保存する
-        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        else:
+            image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         # ここにディレクトリに画像を保存するコードを書き込む
         # test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
@@ -751,19 +783,27 @@ def vending_machine_admin():
 
         # ここにディレクトリに画像を保存するコードを書き込む
         # test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
-        
 
     elif "stock" in request.form.keys() and "drink_id" in request.form.keys():
         stock = request.form["stock"]
         drink_id = request.form["drink_id"]
 
+        if re.search('0-9', stock):
+            stock_error_message = ""
+        else:
+            stock_error_message = "在庫数は０以上の整数しか入れられないよ"
+
     elif "change_status" in request.form.keys() and "status_drink_id" in request.form.keys():
         change_status = int(request.form["change_status"])
         status_drink_id = int(request.form["status_drink_id"])
     
+    # 空のボタンはここで受け取る？
+    # elif "add_drink_button" in request.form.keys() :
+    #     add_drink_button = request.form["add_drink_button"]
+    #     add_error_message = "名前、値段、個数、画像のどれか入力されてないよ"
+
     else:
-        add_error_message = "名前、値段、個数、画像のどれかがおかしいよ！"
-        render_template("vending_machine_admin.html")
+        add_error_message = ""
 
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
@@ -809,6 +849,7 @@ def vending_machine_admin():
             cursor.execute(stock_update)
             cnx.commit()
             cursor.execute(product_information)
+            success_message = "在庫数変更成功"
             print('在庫数変更の条件分岐がうまくいっている')
 
         # 公開、非公開
@@ -816,24 +857,39 @@ def vending_machine_admin():
             cursor.execute(change_status_private)
             cnx.commit()
             cursor.execute(product_information)
+            success_message = "非公開にしたよ"
             print("非公開にすることができた")
 
         elif change_status == 0 and status_drink_id != "":
             cursor.execute(change_status_public)
             cnx.commit()
             cursor.execute(product_information)
+            success_message = "公開成功！"
             print("公開することができた")
             
 
-        elif drink_name == "" and price == "" and stock == "" and image == "":
+        # elif drink_name == "" and price == "" and stock == "" and image == "":
+        elif drink_name == "" or price == "" or stock == "" or image == "":
             cursor.execute(product_information)
             print('何もformから値を送信していないよ')
+            print("もしくはエラーメッセージを表示？")
+
+        
+
+        # elif add_error_message != "":
+        #     cursor.execute(product_information)
+        #     print("エラーメッセージを表示する")
+
+        # elif add_drink_button != "":
+        #     cursor.execute(product_information)
+        #     print("エラーメッセージを表示する")
 
         else:
             cursor.execute(add_product)
             cursor.execute(add_product_stock)
             cnx.commit()
             cursor.execute(product_information)
+            success_message = "商品の追加成功"
             print('商品の追加ができて、一覧に反映されているはずだよ')
 
 
@@ -844,7 +900,12 @@ def vending_machine_admin():
 
 
         params = {
-        "products" : products
+        "products" : products,
+        "add_error_message" : add_error_message,
+        "success_message" : success_message,
+        "status_error_message" : status_error_message,
+        "stock_error_message" : stock_error_message,
+        "price_error_message" : price_error_message
         }
 
     except mysql.connector.Error as err:
@@ -858,6 +919,8 @@ def vending_machine_admin():
         cnx.close()
 
     return render_template("vending_machine_admin.html", **params)
+
+
 
 
 # 購入者画面のロジック　
@@ -874,23 +937,41 @@ def vending_machine_buy():
     drink_price = ""
     drink_change = ""
     select_button = ""
+    drink_bought_error = ""
+    my_money_error_message = ""
 
     if "money" in request.form.keys() and "select_button" in request.form.keys():
         money = request.form["money"]
         select_button = request.form["select_button"]
+
+        if re.search("[0-9]", money):
+            money = int(money)
+        else:
+            money = ""
+
     
-    if money == "" and "select_button" in request.form.keys():
+    elif money == "" or re.search('0-9', money) and "select_button" in request.form.keys():
         
         money_error_message = "お金入れてねーぞ！金払え！"
+
+    else:
+        drink_bought_error = ""
 
     if select_button != "" and select_button != None:
         select_button = int(select_button)
 
-    if money != "" and money != None:
-        money = int(money)
+    # if money != "" and money != None:
+    #     money = int(money)
+
+    # if re.search('0-9', money):
+    #     money = int(money)
+    
+    else:
+        my_money_error_message = ""
 
         # ここにおつりが出るロジックを書く
         # drink_change = int(money) - int(price)
+
 
     try:
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
@@ -935,13 +1016,20 @@ def vending_machine_buy():
 
             
             if money != "" and item["drink_id"] == select_button:
+            # if re.search('[0-9]', money) and item["drink_id"] == select_button:
                 bought.append(item)
                 # bought = item
 
 
+                # お釣りの計算をしている
                 bought_drink_all = bought[0]
                 product_price = bought_drink_all["price"]
                 drink_change = money - product_price
+
+                if drink_change >= 0:
+                    print("お釣りは0円以上")
+                else:
+                    money = ""
                 print("お釣りの計算ができている？")
 
                 
@@ -955,7 +1043,9 @@ def vending_machine_buy():
         # "bought" : bought
         # }
 
-        if money != "":
+        # if money != "":
+        # if re.search('[0-9]', money) and select_button != "":
+        if money != "" and select_button != "":
             params = {
             "bought" : bought,
             "drink_change" : drink_change
@@ -968,11 +1058,22 @@ def vending_machine_buy():
             
             return render_template("vending_machine_result.html", **params)
 
+        elif money == "" and select_button == "":
+            params = {
+            "products" : products,
+            "bought" : bought,
+            "drink_bought_error" : drink_bought_error
+            }
+
+            return render_template("vending_machine_buy.html", **params)
+
+
         else:
             params = {
             "products" : products,
             "bought" : bought,
-            "money_error_message" : money_error_message
+            "money_error_message" : money_error_message,
+            "my_money_error_message" : my_money_error_message
             }
 
             return render_template("vending_machine_buy.html", **params)
