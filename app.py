@@ -743,6 +743,7 @@ def cast_change_status_to_int(request):
 
 # 画像を保存する機能を関数化してみる
 def save_image(filename):
+    filename = ""
     add_error_message = ""
     if filename == "" or filename == None:
         image = ""
@@ -752,59 +753,117 @@ def save_image(filename):
         image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return add_error_message
 
-# DB接続
-cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
-cursor = cnx.cursor()
+# # DB接続
+# cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+# cursor = cnx.cursor()
 
-products = []
-for (image, drink_id, drink_name, price, stock, publication_status) in cursor:
-    item = {"image":image, "drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
-    products.append(item)
+# products = []
+# for (image, drink_id, drink_name, price, stock, publication_status) in cursor:
+#     item = {"image":image, "drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
+#     products.append(item)
 
-params = {
-"products" : products,
+# params = {
+# "products" : products,
 # "add_error_message" : add_error_message,
 # "success_message" : success_message,
 # "status_error_message" : status_error_message,
 # "stock_error_message" : stock_error_message,
 # "price_error_message" : price_error_message
-}
+# }
 
 
-
-def screen_display(drink_name):
+# 管理者画面表示関連
+# DB接続
+def get_connection():
     cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
     cursor = cnx.cursor()
-    product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
-    if drink_name == "" or price == "" or stock == "" or image == "":
-        cursor.execute(product_information)
-        print('何もformから値を送信していないよ')
-        print("もしくはエラーメッセージを表示？")
-        return
-        # return cursor.execute(product_information)
+    return cursor, cnx  
 
-
-
-@app.route("/root")
-def vending_machine_root():
-    cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
-    cursor = cnx.cursor()
-    drink_name = ""
-    screen_display(drink_name)
-    # product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
-    # if drink_name == "" or price == "" or stock == "" or image == "":
-    #     cursor.execute(product_information)
-
+# ここで商品配列に商品を入れている
+def retrieve_products(cursor):
     products = []
     for (image, drink_id, drink_name, price, stock, publication_status) in cursor:
         item = {"image":image, "drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
         products.append(item)
+    return products
+
+# ここで商品のインスタンスをとっている
+def get_products():
+    cursor, cnx = get_connection()
+    product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+    # if drink_name == "" or price == "" or stock == "" or image == "":
+    cursor.execute(product_information)
+
+    products = retrieve_products(cursor)
+    return products
+
+# とりあえずここで画面表示してみる
+# ここにリダイレクトすれば、画面表示＋メッセージ表示ができるという感じ？
+@app.route("/root")
+def vending_machine_root():
+    # drink_name = ""
+    products = get_products()
 
     params = {
     "products" : products
     }
     return render_template("vending_machine_admin.html", **params)
 
+
+# ここに新規追加のロジックを書き込む
+@app.route("/add", methods=["GET", "POST"])
+def vending_machine_add():
+    if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.files and "status_selector" in request.form.keys():
+        drink_name = request.form["drink_name"]
+        price = request.form["price"]
+        stock = request.form["stock"]
+        status = request.form["status_selector"]
+        image = request.files["image"]
+
+        # ここにエラーメッセージをまとめる
+        price_error_message = "" if re.search('[0-9]', price) else "値段は0以上の整数しか入れられないよ"
+        stock_error_message = add_stock_error_message(stock)
+        status_error_message = "公開非公開を選択しろ" if status == "" or status == None else ""
+        filename = secure_filename(image.filename)
+        add_error_message = save_image(filename)
+        
+        success_message = add_product(drink_name, price, filename, status, stock)
+        # return render_template("vending_machine_admin.html", success_message=success_message)
+        return redirect('root')
+
+        # cursor.execute(add_product)
+        # cursor.execute(add_product_stock)
+        # cnx.commit()
+        # cursor.execute(product_information)
+        # success_message = "商品の追加成功"
+        # print('商品の追加ができて、一覧に反映されているはずだよ')
+
+
+# 商品追加の関数
+def add_product(drink_name, price, filename, status, stock):
+    cursor, cnx = get_connection()
+    product_information, add_product, add_product_stock = get_query(drink_name, price, filename, status, stock)
+
+    # product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+    # # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
+    # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image, publication_status) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}', '{status}')"
+    # add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
+
+    cursor.execute(add_product)
+    cursor.execute(add_product_stock)
+    cnx.commit()
+    cursor.execute(product_information)
+    success_message = "商品の追加成功"
+    return success_message
+
+# SQL文のクエリをまとめる
+def get_query(drink_name, price, filename, status, stock):
+    sql_img = "./static/" + filename
+    product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+    add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image, publication_status) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}', '{status}')"
+    add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
+
+    return product_information, add_product, add_product_stock
         
 
 

@@ -41,7 +41,7 @@
 {% if price_error_message %}
 <h2>{{ price_error_message }}</h2>
 {% endif %}
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" action="/add">
    <p><label for="drink_name">名前：</label>
    <input id="drink_name" type="text" name="drink_name"></p>
 
