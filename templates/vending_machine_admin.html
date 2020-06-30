@@ -83,7 +83,7 @@
             <td>{{ item.drink_name }}</td>
             <td>{{ item.price }}円</td>
             <td>
-                <form method="post">
+                <form method="post" action="/change_stock">
                     <label for="stock">ここに個数が入る→</label>
                     <input type="text" name="stock" value="{{item.stock}}">個
                     <input type="hidden" name="drink_id" value="{{item.drink_id}}">

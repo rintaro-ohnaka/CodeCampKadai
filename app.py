@@ -810,14 +810,43 @@ def vending_machine_root():
     return render_template("vending_machine_admin.html", **params)
 
 
+
+# SQL文のクエリをまとめる
+def get_query(drink_name, price, filename, status, stock):
+    sql_img = "./static/" + filename
+    product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+    add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image, publication_status) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}', '{status}')"
+    add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
+
+    return product_information, add_product, add_product_stock
+
+
+# 商品追加の関数
+def add_product(drink_name, price, filename, status, stock):
+    cursor, cnx = get_connection()
+    product_information, add_product, add_product_stock = get_query(drink_name, price, filename, status, stock)
+
+    # product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+    # # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
+    # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image, publication_status) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}', '{status}')"
+    # add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
+
+    cursor.execute(add_product)
+    cursor.execute(add_product_stock)
+    cnx.commit()
+    cursor.execute(product_information)
+    success_message = "商品の追加成功"
+    return success_message
+
+
 # ここに新規追加のロジックを書き込む
 @app.route("/add", methods=["GET", "POST"])
 def vending_machine_add():
-    if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.files and "status_selector" in request.form.keys():
-        drink_name = request.form["drink_name"]
-        price = request.form["price"]
-        stock = request.form["stock"]
-        status = request.form["status_selector"]
+    if "image" in request.files:
+        drink_name = request.form.get("drink_name", "")
+        price = request.form.get("price", "")
+        stock = request.form.get("stock", "")
+        status = request.form.get("status_selector", "")
         image = request.files["image"]
 
         # ここにエラーメッセージをまとめる
@@ -839,32 +868,38 @@ def vending_machine_add():
         # print('商品の追加ができて、一覧に反映されているはずだよ')
 
 
-# 商品追加の関数
-def add_product(drink_name, price, filename, status, stock):
-    cursor, cnx = get_connection()
-    product_information, add_product, add_product_stock = get_query(drink_name, price, filename, status, stock)
-
-    # product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
-    # # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
-    # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image, publication_status) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}', '{status}')"
-    # add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
-
-    cursor.execute(add_product)
-    cursor.execute(add_product_stock)
-    cnx.commit()
-    cursor.execute(product_information)
-    success_message = "商品の追加成功"
-    return success_message
-
-# SQL文のクエリをまとめる
-def get_query(drink_name, price, filename, status, stock):
-    sql_img = "./static/" + filename
+# ここで在庫を取得する
+def get_query_stock(stock, drink_id):
+    stock_update = f"UPDATE stock_table SET stock = '{stock}', update_day = LOCALTIME() WHERE drink_id = '{drink_id}' "
     product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
-    add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image, publication_status) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}', '{status}')"
-    add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
 
-    return product_information, add_product, add_product_stock
+    return stock_update, product_information
+
+
+
+# ここで在庫数変更を実行する
+def change_stock(stock, drink_id):
+    cursor, cnx = get_connection()
+    stock_update, product_information = get_query_stock(stock, drink_id)
+
+    if re.search('[0-9]', stock) and re.search('[0-9]', drink_id):
+        cursor.execute(stock_update)
+        cnx.commit()
+        cursor.execute(product_information)
+        success_message = "在庫数変更成功"
+
+
         
+# ここに在庫数変更のロジックを書く
+@app.route("/change_stock", methods=["GET", "POST"])
+def vending_machine_change_stock():
+    stock = request.form.get("stock", "")
+    drink_id = request.form.get("drink_id", "")
+    success_message = change_stock(stock, drink_id)
+    return redirect('/root')
+
+
+
 
 
 @app.route("/vending_machine_admin", methods=["GET", "POST"])
