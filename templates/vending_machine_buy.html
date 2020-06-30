@@ -35,8 +35,9 @@
         {% if item.publication_status == 1 %}
             <p>
             <img src="{{ item.image }}">
-            {{ item.drink_name }}
-            {{ item.price }}円
+            </p>
+            <p>{{ item.drink_name }}</p>
+            <p>{{ item.price }}円</p>
             
             {% if item.stock == 0 %}
                 <font color="red">売り切れ</font>
@@ -44,7 +45,7 @@
             <input type="radio" name="select_button" value={{item.drink_id}} {{'checked' if button == "select_button"}}>
             {% endif %}
 
-            </p>
+            
         {% else %}
         {% endif %}
     {% endfor %}

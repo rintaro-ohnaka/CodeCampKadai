@@ -702,23 +702,125 @@ ALLOWED_EXTENSIONS = {'png', 'jpeg'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+host = 'localhost' # データベースのホスト名又はIPアドレス
+username = 'root'  # MySQLのユーザ名
+passwd   = 'wako19980207'    # MySQLのパスワード
+dbname   = 'my_database'    # データベース名
+
+# DBに接続する機能を関数化
+# def connector_db():
+#     cnx = mysql.connector.connect(host=HOST, user=USERNAME, password=PASSWD, database=DBNAME)
+#     cursor = cnx.cursor()
+#     return cursor
+
+# 追加：在庫数変更のエラーメッセージ
+def add_stock_error_message(stock):
+    stock_error_message = "" if re.search('[0-9]', stock) else "在庫数は0以上の整数しか入れられないよ"
+    return stock_error_message
+
+# 在庫数変更のリクエストを受けた際、エラーメッセージの表示を関数化
+def get_stock_change(request):
+    stock = ""
+    drink_id = ""
+    stock_error_message = ""
+    if "stock" in request.form.keys() and "drink_id" in request.form.keys():
+        stock = request.form["stock"]
+        drink_id = request.form["drink_id"]
+        stock_error_message = add_stock_error_message(stock)
+    return stock_error_message
+
+# 公開非公開のリクエストを受けた際、変数をint化する
+def cast_change_status_to_int(request):
+    if "change_status" in request.form.keys() and "status_drink_id" in request.form.keys():
+        change_status = int(request.form["change_status"])
+        status_drink_id = int(request.form["status_drink_id"])
+        return change_status, status_drink_id
+    # change_status = int(request.form.get("change_status", ""))
+    # status_drink_id = int(request.form.get("status_drink_id", ""))
+    # return change_status, status_drink_id
+
+# 新規に商品追加リクエストを受けた際
+
+# 画像を保存する機能を関数化してみる
+def save_image(filename):
+    add_error_message = ""
+    if filename == "" or filename == None:
+        image = ""
+        add_error_message = "名前、値段、個数、画像のどれか入力されてないよ"
+        return add_error_message
+    else:
+        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return add_error_message
+
+# DB接続
+cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+cursor = cnx.cursor()
+
+products = []
+for (image, drink_id, drink_name, price, stock, publication_status) in cursor:
+    item = {"image":image, "drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
+    products.append(item)
+
+params = {
+"products" : products,
+# "add_error_message" : add_error_message,
+# "success_message" : success_message,
+# "status_error_message" : status_error_message,
+# "stock_error_message" : stock_error_message,
+# "price_error_message" : price_error_message
+}
+
+
+
+def screen_display(drink_name):
+    cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+    cursor = cnx.cursor()
+    product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+    if drink_name == "" or price == "" or stock == "" or image == "":
+        cursor.execute(product_information)
+        print('何もformから値を送信していないよ')
+        print("もしくはエラーメッセージを表示？")
+        return
+        # return cursor.execute(product_information)
+
+
+
+@app.route("/root")
+def vending_machine_root():
+    cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
+    cursor = cnx.cursor()
+    drink_name = ""
+    screen_display(drink_name)
+    # product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+    # if drink_name == "" or price == "" or stock == "" or image == "":
+    #     cursor.execute(product_information)
+
+    products = []
+    for (image, drink_id, drink_name, price, stock, publication_status) in cursor:
+        item = {"image":image, "drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
+        products.append(item)
+
+    params = {
+    "products" : products
+    }
+    return render_template("vending_machine_admin.html", **params)
+
+        
+
+
 @app.route("/vending_machine_admin", methods=["GET", "POST"])
 def vending_machine_admin():
-    host = 'localhost' # データベースのホスト名又はIPアドレス
-    username = 'root'  # MySQLのユーザ名
-    passwd   = 'wako19980207'    # MySQLのパスワード
-    dbname   = 'my_database'    # データベース名
+    # host = 'localhost' # データベースのホスト名又はIPアドレス
+    # username = 'root'  # MySQLのユーザ名
+    # passwd   = 'wako19980207'    # MySQLのパスワード
+    # dbname   = 'my_database'    # データベース名
 
-    drink_name = ""
-    price = ""
-    stock = ""
-    # stock_id = "2"
-    # item = ""
+
     drink_id = ""
-    image = ""
+
     filename = ""
-    status = ""
-    aaa = ""
+
+    aaaa = ""
     status_drink_id = ""
     change_status = ""
     add_error_message = ""
@@ -728,84 +830,101 @@ def vending_machine_admin():
     stock_error_message = ""
     price_error_message = ""
 
+    drink_name = ""
+    price = ""
+    stock = ""
+    image = ""
+    status = ""
+
+    # 在庫数変更の場合のみ実行
+    stock_error_message = get_stock_change(request)
+
+    result = cast_change_status_to_int(request)
+    change_status = result[0] if result != None else ""
+    status_drink_id = result[1] if result != None else ""
+    # change_status = result[0]
+    # status_drink_id = result[1]
+
     if  "drink_name" in request.form.keys() and "price" in request.form.keys() and "stock" in request.form.keys() and "image" in request.files and "status_selector" in request.form.keys():
         drink_name = request.form["drink_name"]
         price = request.form["price"]
 
-        if re.search('[0-9]', price):
-            price_error_message = ""
-        else:
-            price_error_message = "値段は０以上の整数しか入れられないよ"
+        price_error_message = "" if re.search('[0-9]', price) else "値段は0以上の整数しか入れられないよ"
 
-        # if re.search(['0-9'], price)
+        # if re.search('[0-9]', price):
+        #     price_error_message = ""
+        # else:
+        #     price_error_message = "値段は０以上の整数しか入れられないよ"
+
+
         stock = request.form["stock"]
 
-        if re.search('[0-9]', stock):
-            stock_error_message = ""
-        else:
-            stock_error_message = "在庫数は０以上の整数しか入れられないよ"
+        # if re.search('[0-9]', stock):
+        #     stock_error_message = ""
+        # else:
+        #     stock_error_message = "在庫数は０以上の整数しか入れられないよ"
 
-        # image = request.form["image"]
-        image = request.files["image"]
+        stock_error_message = add_stock_error_message(stock)
 
-        # if re.search('[a-z0-9].[a-z]', mail)
+
+        # image = request.files["image"]
+
 
         # statusに0,1,""の値が入る予定
         status = request.form["status_selector"]
 
-        if status == "" or status == None:
-            status_error_message = "公開非公開を選択しろ"
-        else:
-            status_error_message = ""
+        # if status == "" or status == None:
+        #     status_error_message = "公開非公開を選択しろ"
+        # else:
+        #     status_error_message = ""
+
+        status_error_message = "公開非公開を選択しろ" if status == "" or status == None else ""
         
+        image = request.files["image"]
         filename = secure_filename(image.filename)
-
-        # Pillowモジュールでうまく画像の取り込みができるのでは？という仮説に基づき作ってみる
-        # img = Image.open(image)
-        # img.save("/Users/ronaka/Desktop/myproject/static" + f"{image}")
-
-        # with openで保存できそう？
-        # with open("/Users/ronaka/Desktop/myproject/static" + image, 'wb') as f:
-        #     f.write(image)
-
-        if filename == "" or filename == None:
-            image = ""
-            add_error_message = "名前、値段、個数、画像のどれか入力されてないよ"
-        # これでformから受け取った画像を保存する
-        else:
-            image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-        # ここにディレクトリに画像を保存するコードを書き込む
-        # test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
-
-        # image.append("/Users/ronaka/Desktop/myproject/static")
-
-
-        # ここにディレクトリに画像を保存するコードを書き込む
-        # test = os.path.join("/Users/ronaka/Desktop/myproject/static", f"{image}")
-
-    elif "stock" in request.form.keys() and "drink_id" in request.form.keys():
-        stock = request.form["stock"]
-        drink_id = request.form["drink_id"]
-
-        if re.search('[0-9]', stock):
-            stock_error_message = ""
-        else:
-            stock_error_message = "在庫数は０以上の整数しか入れられないよ"
-
-    elif "change_status" in request.form.keys() and "status_drink_id" in request.form.keys():
-        change_status = int(request.form["change_status"])
-        status_drink_id = int(request.form["status_drink_id"])
-    
-    # 空のボタンはここで受け取る？
-    # elif "add_drink_button" in request.form.keys() :
-    #     add_drink_button = request.form["add_drink_button"]
-    #     add_error_message = "名前、値段、個数、画像のどれか入力されてないよ"
+        add_error_message = save_image(filename)
+        
 
     else:
-        add_error_message = ""
+        aaaa = ""
+
+
+        # if filename == "" or filename == None:
+        #     image = ""
+        #     add_error_message = "名前、値段、個数、画像のどれか入力されてないよ"
+        # # これでformから受け取った画像を保存する
+        # else:
+        #     image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+
+    # elif "stock" in request.form.keys() and "drink_id" in request.form.keys():
+    #     stock = request.form["stock"]
+    #     drink_id = request.form["drink_id"]
+
+    #     stock_error_message = "" if re.search('[0-9]', stock) else "在庫数は0以上の整数しか入れられないよ"
+
+    # stock_error_message = get_stock_change(request):
+
+        # if re.search('[0-9]', stock):
+        #     stock_error_message = ""
+        # else:
+        #     stock_error_message = "在庫数は０以上の整数しか入れられないよ"
+
+    # elif "change_status" in request.form.keys() and "status_drink_id" in request.form.keys():
+    #     change_status = int(request.form["change_status"])
+    #     status_drink_id = int(request.form["status_drink_id"])
+
+    # result = cast_change_status_to_int(request)
+    # change_status = result[0]
+    # status_drink_id = result[1]
+    
+
+
+    # else:
+    #     add_error_message = ""
 
     try:
+        # cursor = connector_db()
         cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
         cursor = cnx.cursor()
 
@@ -818,32 +937,12 @@ def vending_machine_admin():
         add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
         # このstock_updateが元のコード
         stock_update = f"UPDATE stock_table SET stock = '{stock}', update_day = LOCALTIME() WHERE drink_id = '{drink_id}' "
-        # stock_update = f"UPDATE stock_table SET stock = '{item}' WHERE drink_id = '{drink_id}' "
-        # カラムはもう存在するので、既存のカラムに値を入れるSQL文はないのだろうか？
-        # stock_update_day = f""
+
         
         change_status_private = f"UPDATE drink_table SET publication_status = 0 WHERE drink_id = {status_drink_id} "
         change_status_public = f"UPDATE drink_table SET publication_status = 1 WHERE drink_id = {status_drink_id} "
 
-        # if re.search('[0-9]', stock):
-            
-        #     cursor.execute(stock_update)
-        #     cnx.commit()
-        #     print('在庫変更ができているよ')
 
-        # if re.search('[0-9]', stock) or drink_name == "" and price == "" and image == "" and stock == "":
-            
-        #     cursor.execute(product_information)
-        #     print('まだDBに変更を反映することができていないよ')
-
-
-        # else:
-
-        #     cursor.execute(add_product)
-        #     cursor.execute(add_product_stock)
-        #     cnx.commit()
-        #     cursor.execute(product_information)
-        #     print('DBにコミットできているよ')
 
         if re.search('[0-9]', stock) and re.search('[0-9]', drink_id):
             cursor.execute(stock_update)
@@ -876,13 +975,6 @@ def vending_machine_admin():
 
         
 
-        # elif add_error_message != "":
-        #     cursor.execute(product_information)
-        #     print("エラーメッセージを表示する")
-
-        # elif add_drink_button != "":
-        #     cursor.execute(product_information)
-        #     print("エラーメッセージを表示する")
 
         else:
             cursor.execute(add_product)
