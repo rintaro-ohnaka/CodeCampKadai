@@ -899,6 +899,46 @@ def vending_machine_change_stock():
     return redirect('/root')
 
 
+# ここで公開非公開の値をとる
+def get_query_status(change_number, status_drink_id):
+    # change_status_private = f"UPDATE drink_table SET publication_status = 0 WHERE drink_id = {status_drink_id} "
+    # change_status_public = f"UPDATE drink_table SET publication_status = 1 WHERE drink_id = {status_drink_id} "
+    product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+    change_status = f"UPDATE drink_table SET publication_status = {change_number} WHERE drink_id = {status_drink_id} "
+    return change_status, product_information
+
+# 公開非公開を実行する
+def change_status(change_number, status_drink_id):
+    cursor, cnx = get_connection()
+    change_status, product_information = get_query_status(change_number, status_drink_id)
+    cursor.execute(change_status)
+    cnx.commit()
+    cursor.execute(product_information)
+    success_message = "公開非公開を設定"
+    return success_message
+
+# ここに公開非公開のロジックを書く
+@app.route("/change_status", methods=["GET", "POST"])
+def vending_machine_change_status():
+    change_number = request.form.get("change_status", "")
+    status_drink_id = request.form.get("status_drink_id", "")
+    success_message = change_status(change_number, status_drink_id)
+    return redirect("/root")
+
+# elif change_status == 1 and status_drink_id != "":
+#     cursor.execute(change_status_private)
+#     cnx.commit()
+#     cursor.execute(product_information)
+#     success_message = "非公開にしたよ"
+#     print("非公開にすることができた")
+
+# elif change_status == 0 and status_drink_id != "":
+#     cursor.execute(change_status_public)
+#     cnx.commit()
+#     cursor.execute(product_information)
+#     success_message = "公開成功！"
+#     print("公開することができた")
+
 
 
 
