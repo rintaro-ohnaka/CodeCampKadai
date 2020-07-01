@@ -827,9 +827,7 @@ def add_product(drink_name, price, filename, status, stock):
     cursor.execute(add_product_stock)
     cnx.commit()
     cursor.execute(product_information)
-    # success_message = "商品の追加成功"
     return 
-    # return success_message
 
 # 商品の追加成功可否メッセージをまとめる
 def add_products_message(drink_name, price, stock, status, image):
@@ -945,16 +943,16 @@ def vending_machine_change_status():
 
 
 # 公開非公開の可否メッセージをsessionでやってみる
-def get_public_success_error_message():
-    # ここでセッションを受け取る
-    if change_number == 0:
-        flash("非公開にすることができたよ！", "")
-    elif change_number == 1:
-        flash("公開することができたよ！", "")
-    else:
-        flash("公開非公開を選択しようね")
+# def get_public_success_error_message():
+#     # ここでセッションを受け取る
+#     if change_number == 0:
+#         flash("非公開にすることができたよ！", "")
+#     elif change_number == 1:
+#         flash("公開することができたよ！", "")
+#     else:
+#         flash("公開非公開を選択しようね")
     
-    return flash
+#     return flash
 
 
 
@@ -986,24 +984,31 @@ def bought_products():
     if request_money != "" and request_select_button != "":
         money = int(request_money)
         select_button = int(request_select_button)
-        # add_bought_message(money, select_button)
         bought = select_product(money, select_button)
         drink_change, bought_drink_all = payment(bought, money)
-        product_stock = reduce_stock(bought_drink_all)
-        stock_delete(product_stock, select_button)
-        return render_template("vending_machine_result.html", drink_change=drink_change, bought=bought)
+        # money_check(drink_change, bought, bought_drink_all, select_button)
+        if drink_change >= 0:
+            # そのまま処理継続
+            product_stock = reduce_stock(bought_drink_all)
+            stock_delete(product_stock, select_button)
+            return render_template("vending_machine_result.html", drink_change=drink_change, bought=bought)
+        else:
+            flash("金額が足りないよ", "")
+            return redirect('/user')
     else:
         flash("お金が入力されてないか、商品を選択していないよ", "")
         return redirect('/user')
 
-    # drink_change, bought = add_bought_message(request_money, request_select_button)
-
-    # add_bought_message(money, select_button)
-    # bought = select_product(money, select_button)
-    # drink_change, bought_drink_all = payment(bought, money)
-    # product_stock = reduce_stock(bought_drink_all)
-    # stock_delete(product_stock, select_button)
-    # return render_template("vending_machine_result.html", drink_change=drink_change, bought=bought)
+# 金額が足りているかの確認
+# def money_check(drink_change, bought, bought_drink_all, select_button):
+#     if drink_change >= 0:
+#         # そのまま処理継続
+#         product_stock = reduce_stock(bought_drink_all)
+#         stock_delete(product_stock, select_button)
+#         return render_template("vending_machine_result.html", drink_change=drink_change, bought=bought)
+#     else:
+#         flash("金額が足りないよ", "")
+#         return redirect('/user')
 
 
 
@@ -1029,14 +1034,17 @@ def payment(bought, money):
     bought_drink_all = bought[0]
     product_price = bought_drink_all["price"]
     drink_change = money - product_price
-
-    if drink_change >= 0:
-        print("お釣りは0円以上")
-    else:
-        money = ""
-    print("お釣りの計算ができている？")
-    # drink_changeはお釣り
     return drink_change, bought_drink_all
+
+    # if drink_change >= 0:
+    #     print("お釣りは0円以上")
+    #     return drink_change, bought_drink_all
+    # else:
+    #     return redirect('/user')
+
+        # money = ""
+    # drink_changeはお釣り
+    # return drink_change, bought_drink_all
 
 # 支払いの際に在庫数を１つ減らすロジック
 def reduce_stock(bought_drink_all):
@@ -1054,6 +1062,7 @@ def stock_delete(product_stock_delete, select_button):
     purchase_record = f"INSERT INTO bought_table (drink_id, bought_day) VALUES ('{select_button}', LOCALTIME()) "
     cursor.execute(purchase_record)
     cnx.commit()
+    return
 
 
 
