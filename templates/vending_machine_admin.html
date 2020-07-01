@@ -22,6 +22,17 @@
 </head>
 <body>
 <h1>管理者側ページ</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+
 {% if add_error_message %}
 <h2>{{ add_error_message }}</h2>
 {% endif %}

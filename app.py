@@ -2,6 +2,7 @@
 
 from flask import Flask
 app = Flask(__name__)
+
 from flask import render_template
 
 @app.route('/hello/')
@@ -692,7 +693,8 @@ def transaction():
 import os
 from PIL import Image
 
-from flask import Flask, flash, request, redirect, url_for
+from flask import Flask, flash, request, redirect, url_for, session
+app.config['SECRET_KEY'] = 'vending_machine'
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = '/Users/ronaka/Desktop/myproject/static/'
@@ -826,11 +828,6 @@ def add_product(drink_name, price, filename, status, stock):
     cursor, cnx = get_connection()
     product_information, add_product, add_product_stock = get_query(drink_name, price, filename, status, stock)
 
-    # product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
-    # # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, image) VALUES ('{drink_name}', '{price}', LOCALTIME(), '{sql_img}')"
-    # add_product = f"INSERT INTO drink_table (drink_name, price, create_day, update_day, image, publication_status) VALUES ('{drink_name}', '{price}', LOCALTIME(), LOCALTIME(), '{sql_img}', '{status}')"
-    # add_product_stock = f"INSERT INTO stock_table (stock, create_day, update_day) VALUES ('{stock}', LOCALTIME(), LOCALTIME())"
-
     cursor.execute(add_product)
     cursor.execute(add_product_stock)
     cnx.commit()
@@ -859,13 +856,6 @@ def vending_machine_add():
         success_message = add_product(drink_name, price, filename, status, stock)
         # return render_template("vending_machine_admin.html", success_message=success_message)
         return redirect('root')
-
-        # cursor.execute(add_product)
-        # cursor.execute(add_product_stock)
-        # cnx.commit()
-        # cursor.execute(product_information)
-        # success_message = "商品の追加成功"
-        # print('商品の追加ができて、一覧に反映されているはずだよ')
 
 
 # ここで在庫を取得する
@@ -901,8 +891,6 @@ def vending_machine_change_stock():
 
 # ここで公開非公開の値をとる
 def get_query_status(change_number, status_drink_id):
-    # change_status_private = f"UPDATE drink_table SET publication_status = 0 WHERE drink_id = {status_drink_id} "
-    # change_status_public = f"UPDATE drink_table SET publication_status = 1 WHERE drink_id = {status_drink_id} "
     product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
     change_status = f"UPDATE drink_table SET publication_status = {change_number} WHERE drink_id = {status_drink_id} "
     return change_status, product_information
@@ -922,22 +910,27 @@ def change_status(change_number, status_drink_id):
 def vending_machine_change_status():
     change_number = request.form.get("change_status", "")
     status_drink_id = request.form.get("status_drink_id", "")
+    if change_number == 0:
+        flash("非公開にすることができたよ！", "")
+    elif change_number == 1:
+        flash("公開することができたよ！", "")
+    else:
+        flash("公開非公開を選択しようね")
     success_message = change_status(change_number, status_drink_id)
     return redirect("/root")
 
-# elif change_status == 1 and status_drink_id != "":
-#     cursor.execute(change_status_private)
-#     cnx.commit()
-#     cursor.execute(product_information)
-#     success_message = "非公開にしたよ"
-#     print("非公開にすることができた")
 
-# elif change_status == 0 and status_drink_id != "":
-#     cursor.execute(change_status_public)
-#     cnx.commit()
-#     cursor.execute(product_information)
-#     success_message = "公開成功！"
-#     print("公開することができた")
+# 公開非公開の可否メッセージをsessionでやってみる
+def get_public_success_error_message():
+    # ここでセッションを受け取る
+    if change_number == 0:
+        flash("非公開にすることができたよ！", "")
+    elif change_number == 1:
+        flash("公開することができたよ！", "")
+    else:
+        flash("公開非公開を選択しようね")
+    
+    return flash
 
 
 
