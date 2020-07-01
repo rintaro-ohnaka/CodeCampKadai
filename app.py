@@ -1,7 +1,11 @@
 # coding:utf-8
 
-from flask import Flask
+# from flask import Flask
+# app = Flask(__name__)
+# app.config['SECRET_KEY'] = 'vending_machine'
+from flask import Flask, flash, request, redirect, url_for, session
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'vending_machine'
 
 from flask import render_template
 
@@ -694,14 +698,17 @@ import os
 from PIL import Image
 
 from flask import Flask, flash, request, redirect, url_for, session
+app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vending_machine'
+
 from werkzeug.utils import secure_filename
 
-UPLOAD_FOLDER = '/Users/ronaka/Desktop/myproject/static/'
+UPLOAD_FOLDER = './static/'
+# UPLOAD_FOLDER = '/Users/ronaka/Desktop/myproject/static/'
 # ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 ALLOWED_EXTENSIONS = {'png', 'jpeg'}
 
-app = Flask(__name__)
+# app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 host = 'localhost' # データベースのホスト名又はIPアドレス
@@ -716,27 +723,27 @@ dbname   = 'my_database'    # データベース名
 #     return cursor
 
 # 追加：在庫数変更のエラーメッセージ
-def add_stock_error_message(stock):
-    stock_error_message = "" if re.search('[0-9]', stock) else "在庫数は0以上の整数しか入れられないよ"
-    return stock_error_message
+# def add_stock_error_message(stock):
+#     stock_error_message = "" if re.search('[0-9]', stock) else "在庫数は0以上の整数しか入れられないよ"
+#     return stock_error_message
 
 # 在庫数変更のリクエストを受けた際、エラーメッセージの表示を関数化
-def get_stock_change(request):
-    stock = ""
-    drink_id = ""
-    stock_error_message = ""
-    if "stock" in request.form.keys() and "drink_id" in request.form.keys():
-        stock = request.form["stock"]
-        drink_id = request.form["drink_id"]
-        stock_error_message = add_stock_error_message(stock)
-    return stock_error_message
+# def get_stock_change(request):
+#     stock = ""
+#     drink_id = ""
+#     stock_error_message = ""
+#     if "stock" in request.form.keys() and "drink_id" in request.form.keys():
+#         stock = request.form["stock"]
+#         drink_id = request.form["drink_id"]
+#         stock_error_message = add_stock_error_message(stock)
+#     return stock_error_message
 
 # 公開非公開のリクエストを受けた際、変数をint化する
-def cast_change_status_to_int(request):
-    if "change_status" in request.form.keys() and "status_drink_id" in request.form.keys():
-        change_status = int(request.form["change_status"])
-        status_drink_id = int(request.form["status_drink_id"])
-        return change_status, status_drink_id
+# def cast_change_status_to_int(request):
+#     if "change_status" in request.form.keys() and "status_drink_id" in request.form.keys():
+#         change_status = int(request.form["change_status"])
+#         status_drink_id = int(request.form["status_drink_id"])
+#         return change_status, status_drink_id
     # change_status = int(request.form.get("change_status", ""))
     # status_drink_id = int(request.form.get("status_drink_id", ""))
     # return change_status, status_drink_id
@@ -744,34 +751,22 @@ def cast_change_status_to_int(request):
 # 新規に商品追加リクエストを受けた際
 
 # 画像を保存する機能を関数化してみる
-def save_image(filename):
-    filename = ""
-    add_error_message = ""
-    if filename == "" or filename == None:
-        image = ""
-        add_error_message = "名前、値段、個数、画像のどれか入力されてないよ"
-        return add_error_message
-    else:
-        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return add_error_message
+# def save_image(filename):
+#     filename = ""
+#     add_error_message = ""
+#     if filename == "" or filename == None:
+#         image = ""
+#         add_error_message = "名前、値段、個数、画像のどれか入力されてないよ"
+#         return add_error_message
+#     else:
+#         image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+#         return add_error_message
 
-# # DB接続
-# cnx = mysql.connector.connect(host=host, user=username, password=passwd, database=dbname)
-# cursor = cnx.cursor()
-
-# products = []
-# for (image, drink_id, drink_name, price, stock, publication_status) in cursor:
-#     item = {"image":image, "drink_id":drink_id, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
-#     products.append(item)
-
-# params = {
-# "products" : products,
-# "add_error_message" : add_error_message,
-# "success_message" : success_message,
-# "status_error_message" : status_error_message,
-# "stock_error_message" : stock_error_message,
-# "price_error_message" : price_error_message
-# }
+# 画像を保存する関数を進化させる
+def save_filename(image):
+    filename = secure_filename(image.filename)
+    image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    return filename
 
 
 # 管理者画面表示関連
@@ -832,8 +827,22 @@ def add_product(drink_name, price, filename, status, stock):
     cursor.execute(add_product_stock)
     cnx.commit()
     cursor.execute(product_information)
-    success_message = "商品の追加成功"
-    return success_message
+    # success_message = "商品の追加成功"
+    return 
+    # return success_message
+
+# 商品の追加成功可否メッセージをまとめる
+def add_products_message(drink_name, price, stock, status, image):
+    if drink_name != "" and re.search('[0-9]', price) and re.search('[0-9]', stock) and status != "" and image != "":
+        flash("商品追加に成功！", "")
+        print("if文の条件に合っている")
+        filename = save_filename(image)
+        add_product(drink_name, price, filename, status, stock)
+        # success_message = add_product(drink_name, price, filename, status, stock)
+    else:
+        flash("商品の情報が足りないよ")
+    return
+
 
 
 # ここに新規追加のロジックを書き込む
@@ -846,16 +855,27 @@ def vending_machine_add():
         status = request.form.get("status_selector", "")
         image = request.files["image"]
 
+    add_products_message(drink_name, price, stock, status, image)
+    return redirect('root')
+
+    # if drink_name != "" and re.search('[0-9]', price) and re.search('[0-9]', stock) and status != "" and image != "":
+    #     flash("商品追加に成功！", "")
+    #     print("if文の条件に合っている")
+    #     save_filename(image)
+    #     success_message = add_product(drink_name, price, filename, status, stock)
+    # else:
+    #     flash("商品の情報が足りないよ")
+
         # ここにエラーメッセージをまとめる
-        price_error_message = "" if re.search('[0-9]', price) else "値段は0以上の整数しか入れられないよ"
-        stock_error_message = add_stock_error_message(stock)
-        status_error_message = "公開非公開を選択しろ" if status == "" or status == None else ""
-        filename = secure_filename(image.filename)
-        add_error_message = save_image(filename)
+        # price_error_message = "" if re.search('[0-9]', price) else "値段は0以上の整数しか入れられないよ"
+        # stock_error_message = add_stock_error_message(stock)
+        # status_error_message = "公開非公開を選択しろ" if status == "" or status == None else ""
+        # filename = secure_filename(image.filename)
+        # add_error_message = save_image(filename)
         
-        success_message = add_product(drink_name, price, filename, status, stock)
+        # success_message = add_product(drink_name, price, filename, status, stock)
         # return render_template("vending_machine_admin.html", success_message=success_message)
-        return redirect('root')
+    # return redirect('root')
 
 
 # ここで在庫を取得する
@@ -885,6 +905,10 @@ def change_stock(stock, drink_id):
 def vending_machine_change_stock():
     stock = request.form.get("stock", "")
     drink_id = request.form.get("drink_id", "")
+    if stock == "":
+        flash("在庫が入力されてないよ", "")
+    else:
+        flash("在庫数を変更することができたお", "")
     success_message = change_stock(stock, drink_id)
     return redirect('/root')
 
@@ -910,9 +934,9 @@ def change_status(change_number, status_drink_id):
 def vending_machine_change_status():
     change_number = request.form.get("change_status", "")
     status_drink_id = request.form.get("status_drink_id", "")
-    if change_number == 0:
+    if change_number == '0':
         flash("非公開にすることができたよ！", "")
-    elif change_number == 1:
+    elif change_number == '1':
         flash("公開することができたよ！", "")
     else:
         flash("公開非公開を選択しようね")
@@ -931,6 +955,127 @@ def get_public_success_error_message():
         flash("公開非公開を選択しようね")
     
     return flash
+
+
+
+
+
+# def add_bought_message(request_money, request_select_button):
+#     if request_money != "" and request_select_button != "":
+#         flash("商品の購入に成功", "")
+#         money = int(request_money)
+#         select_button = int(request_select_button)
+#         add_bought_message(money, select_button)
+#         bought = select_product(money, select_button)
+#         drink_change, bought_drink_all = payment(bought, money)
+#         product_stock = reduce_stock(bought_drink_all)
+#         stock_delete(product_stock, select_button)
+#         return drink_change, bought
+#     else:
+#         flash("お金が入力されてないか、商品を選択していないよ", "")
+
+    
+
+
+# 商品を購入する際のロジックを書いてみる
+@app.route("/purchase", methods=["GET", "POST"])
+def bought_products():
+    request_money = request.form.get("money", "")
+    request_select_button = request.form.get("select_button", "")
+
+    if request_money != "" and request_select_button != "":
+        money = int(request_money)
+        select_button = int(request_select_button)
+        # add_bought_message(money, select_button)
+        bought = select_product(money, select_button)
+        drink_change, bought_drink_all = payment(bought, money)
+        product_stock = reduce_stock(bought_drink_all)
+        stock_delete(product_stock, select_button)
+        return render_template("vending_machine_result.html", drink_change=drink_change, bought=bought)
+    else:
+        flash("お金が入力されてないか、商品を選択していないよ", "")
+        return redirect('/user')
+
+    # drink_change, bought = add_bought_message(request_money, request_select_button)
+
+    # add_bought_message(money, select_button)
+    # bought = select_product(money, select_button)
+    # drink_change, bought_drink_all = payment(bought, money)
+    # product_stock = reduce_stock(bought_drink_all)
+    # stock_delete(product_stock, select_button)
+    # return render_template("vending_machine_result.html", drink_change=drink_change, bought=bought)
+
+
+
+
+# 商品を選択する部分を分けれそう
+def select_product(money, select_button):
+    cursor, cnx = get_connection()
+    product_information = "SELECT drink_table.drink_id, image, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
+    cursor.execute(product_information)
+    products = []
+    bought = []
+    for (drink_id, image, drink_name, price, stock, publication_status) in cursor:
+        item = {"drink_id":drink_id, "image":image, "drink_name":drink_name, "price":price, "stock":stock, "publication_status":publication_status}
+        products.append(item)
+        # この下の文いる？
+        if money != "" and item["drink_id"] == select_button:
+            bought.append(item)
+    return bought
+
+# お釣り計算をするロジック
+def payment(bought, money):
+    # お釣りの計算をしている
+    bought_drink_all = bought[0]
+    product_price = bought_drink_all["price"]
+    drink_change = money - product_price
+
+    if drink_change >= 0:
+        print("お釣りは0円以上")
+    else:
+        money = ""
+    print("お釣りの計算ができている？")
+    # drink_changeはお釣り
+    return drink_change, bought_drink_all
+
+# 支払いの際に在庫数を１つ減らすロジック
+def reduce_stock(bought_drink_all):
+    product_stock = bought_drink_all["stock"]
+    product_stock_delete = product_stock - 1
+    # 在庫数を一つ減らした数値がproduct_stockに入っている
+    return product_stock_delete
+
+# 在庫数を減らすロジックを書く
+def stock_delete(product_stock_delete, select_button):
+    cursor, cnx = get_connection()
+    stock_delete = f"UPDATE stock_table SET stock = {product_stock_delete}, update_day = LOCALTIME() WHERE drink_id = {select_button} "
+    cursor.execute(stock_delete)
+    # 購入した記録をする
+    purchase_record = f"INSERT INTO bought_table (drink_id, bought_day) VALUES ('{select_button}', LOCALTIME()) "
+    cursor.execute(purchase_record)
+    cnx.commit()
+
+
+
+# 購入者画面の関数化をやってみよう
+# 一番最初の画面表示をここで行う 
+@app.route("/user")
+def vending_machine_user():
+    # drink_name = ""
+    products = get_products()
+
+    params = {
+    "products" : products
+    }
+    return render_template("vending_machine_buy.html", **params)
+
+
+
+
+
+
+
+
 
 
 
@@ -1142,6 +1287,8 @@ def vending_machine_admin():
 
 
 
+
+
 # 購入者画面のロジック　
 @app.route("/vending_machine_buy", methods=["GET", "POST"])
 def vending_machine_buy():
@@ -1231,7 +1378,6 @@ def vending_machine_buy():
 
             if money == "" and select_button != "":
                 money_error_message = "お金入れてねーぞ！金払え！"
-
 
             
             if money != "" and item["drink_id"] == select_button:

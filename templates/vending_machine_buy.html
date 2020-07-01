@@ -14,8 +14,20 @@
     </style>
 </head>
 <body>
+
 <h1>購入者側ページ</h1>
-{% if money_error_message %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+
+<!-- {% if money_error_message %}
 <h2>{{ money_error_message }}</h2>
 {% endif %}
 {% if drink_bought_error %}
@@ -24,8 +36,8 @@
 
 {% if my_money_error_message %}
 <h2>{{ my_money_error_message }}</h2>
-{% endif %}
-<form method="post">
+{% endif %} -->
+<form method="post" action="/purchase">
     <p>
     <label>金額：<input id="money" type="text" name="money"></label>
     </p>
