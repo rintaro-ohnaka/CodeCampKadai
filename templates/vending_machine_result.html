@@ -17,13 +17,16 @@
     <p>
     <img src="{{ item.image }}">
     <!-- {{ item.drink_name }} -->
-    {{ item.price }}
+    {{ item.price }}円
     
     </p>
     <p>ガシャコン！{{ item.drink_name }}が買えたお</p>
     <p>おつりは{{ drink_change }}円よ！</p>
     {% endfor %}
 
-    <button onclick="history.back()">戻る</button>
+    <!-- <button onclick="history.back()">戻る</button> -->
+    <form method="post" action="/user">
+        <button type="submit">購入者画面に戻る</button>
+    </form>
 </body>
 </html>

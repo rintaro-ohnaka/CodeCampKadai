@@ -889,12 +889,15 @@ def get_query_stock(stock, drink_id):
 def change_stock(stock, drink_id):
     cursor, cnx = get_connection()
     stock_update, product_information = get_query_stock(stock, drink_id)
+    cursor.execute(stock_update)
+    cnx.commit()
+    cursor.execute(product_information)
 
-    if re.search('[0-9]', stock) and re.search('[0-9]', drink_id):
-        cursor.execute(stock_update)
-        cnx.commit()
-        cursor.execute(product_information)
-        success_message = "在庫数変更成功"
+    # if re.search('[0-9]', stock) and re.search('[0-9]', drink_id):
+    #     cursor.execute(stock_update)
+    #     cnx.commit()
+    #     cursor.execute(product_information)
+        # success_message = "在庫数変更成功"
 
 
         
@@ -903,11 +906,11 @@ def change_stock(stock, drink_id):
 def vending_machine_change_stock():
     stock = request.form.get("stock", "")
     drink_id = request.form.get("drink_id", "")
-    if stock == "":
-        flash("在庫が入力されてないよ", "")
+    if re.search('[0-9]', stock):
+        flash("在庫を変更することができたよ", "")
+        change_stock(stock, drink_id)
     else:
-        flash("在庫数を変更することができたお", "")
-    success_message = change_stock(stock, drink_id)
+        flash("在庫数変更できなかったー", "")
     return redirect('/root')
 
 
@@ -987,6 +990,7 @@ def bought_products():
         bought = select_product(money, select_button)
         drink_change, bought_drink_all = payment(bought, money)
         # money_check(drink_change, bought, bought_drink_all, select_button)
+        # 途中で処理を抜けたい
         if drink_change >= 0:
             # そのまま処理継続
             product_stock = reduce_stock(bought_drink_all)
@@ -1068,7 +1072,7 @@ def stock_delete(product_stock_delete, select_button):
 
 # 購入者画面の関数化をやってみよう
 # 一番最初の画面表示をここで行う 
-@app.route("/user")
+@app.route("/user", methods=["GET", "POST"])
 def vending_machine_user():
     # drink_name = ""
     products = get_products()

@@ -25,6 +25,9 @@
 </head>
 <body>
 <h1>管理者側ページ</h1>
+<form method="post" action="/user">
+    <button type="submit">購入者ページはこちら</button>
+</form>
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     <ul class=flashes>
