@@ -762,7 +762,7 @@ dbname   = 'my_database'    # データベース名
 #         image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 #         return add_error_message
 
-# 画像を保存する関数を進化させる
+# 画像を保存する関数
 def save_filename(image):
     filename = secure_filename(image.filename)
     image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -784,7 +784,7 @@ def retrieve_products(cursor):
         products.append(item)
     return products
 
-# ここで商品のインスタンスをとっている
+# 商品取得
 def get_products():
     cursor, cnx = get_connection()
     product_information = "SELECT drink_table.image, drink_table.drink_id, drink_name, price, stock, publication_status FROM drink_table JOIN stock_table ON drink_table.drink_id = stock_table.drink_id"
